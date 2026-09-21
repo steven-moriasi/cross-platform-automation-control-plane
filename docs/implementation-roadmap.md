@@ -1,7 +1,7 @@
 # Implementation roadmap
 
-The platform is delivered as meaningful, reviewable increments. Each phase ends with executable
-verification and a Steven Ongati-authored commit on `main`.
+The platform is delivered as meaningful, reviewable increments. Each phase ends
+with executable verification and a Steven Ongati-authored commit on `main`.
 
 ## Repository structure
 
@@ -60,7 +60,8 @@ Acceptance:
 ## Phase 3: catalog and governance manifests
 
 - define versioned JSON Schemas for automation manifests;
-- implement catalog, ownership, dependency, SLA, risk, and data-classification records;
+- implement catalog, ownership, dependency, SLA, risk, and data-classification
+  records;
 - reject embedded secret values and unsafe manifest fields;
 - calculate native artifact checksums;
 - add portfolio and automation detail screens.
@@ -101,7 +102,8 @@ Acceptance:
 
 ## Phase 6: operator experience
 
-- build dashboard, catalog, release, execution, incident, policy, and audit views;
+- build dashboard, catalog, release, execution, incident, policy, and audit
+  views;
 - add accessible loading, empty, degraded, and error states;
 - add filtering and pagination suitable for a real automation portfolio;
 - surface evidence boundaries and hosted-verification status.
@@ -168,14 +170,16 @@ Acceptance:
 
 - initialize the YAML solution source;
 - create the synthetic operations custom connector;
-- define environment variables, connection references, security roles, and approval contract;
+- define environment variables, connection references, security roles, and
+  approval contract;
 - validate and pack the solution with Power Platform CLI.
 
 Acceptance:
 
 - OpenAPI and policy checks pass;
 - pack/unpack is deterministic;
-- Dataverse, app, and flow execution remain clearly marked until a licensed environment is used.
+- Dataverse, app, and flow execution remain clearly marked until a licensed
+  environment is used.
 
 ## Phase 12: operations and deployment
 
@@ -193,14 +197,15 @@ Acceptance:
 
 ## External prerequisites
 
-The core system and n8n package require no commercial platform account. The following hosted proof
-is optional and separate:
+The core system and n8n package require no commercial platform account. The
+following hosted proof is optional and separate:
 
-| Platform | Needed for hosted proof |
-|---|---|
-| Zapier | Developer account and deploy key |
-| Make | Account with scenario import and execution access |
+| Platform       | Needed for hosted proof                                    |
+| -------------- | ---------------------------------------------------------- |
+| Zapier         | Developer account and deploy key                           |
+| Make           | Account with scenario import and execution access          |
 | Power Platform | Developer environment, Dataverse, and solution permissions |
 
-Missing hosted access does not justify fake screenshots or claims. The repository remains complete
-as a locally verifiable reference implementation, with each vendor boundary documented.
+Missing hosted access does not justify fake screenshots or claims. The
+repository remains complete as a locally verifiable reference implementation,
+with each vendor boundary documented.

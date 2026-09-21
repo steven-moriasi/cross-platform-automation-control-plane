@@ -1,0 +1,17 @@
+packages:
+  - "apps/*"
+  - "services/*"
+  - "packages/*"
+  - "automations/zapier"
+  - "automations/n8n/nodes/*"
+
+allowBuilds:
+  esbuild: true
+
+catalogMode: strict
+
+cleanupUnusedCatalogs: true
+
+linkWorkspacePackages: true
+
+savePrefix: ""

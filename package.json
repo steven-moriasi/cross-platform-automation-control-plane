@@ -1,0 +1,33 @@
+{
+  "name": "cross-platform-automation-control-plane",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A governance and operations control plane for n8n, Zapier, Make, and Power Platform automations.",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.20.0 <23"
+  },
+  "packageManager": "pnpm@12.4.1",
+  "scripts": {
+    "build": "turbo run build",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "dev": "turbo run dev --parallel",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.20.2",
+    "eslint": "10.10.0",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.9.6",
+    "turbo": "2.10.12",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0",
+    "vitest": "5.0.0"
+  }
+}
