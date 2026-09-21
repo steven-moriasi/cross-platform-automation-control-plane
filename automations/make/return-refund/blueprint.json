@@ -1,0 +1,30 @@
+{
+  "name": "Synthetic commerce return and refund",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:webhook",
+      "version": 1,
+      "parameters": {
+        "hook": "SYNTHETIC_RETURN_REQUEST"
+      },
+      "mapper": {}
+    },
+    {
+      "id": 2,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "method": "get",
+        "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/orders/{{1.orderId}}"
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1
+  }
+}

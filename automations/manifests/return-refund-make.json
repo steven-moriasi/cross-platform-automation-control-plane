@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0",
+  "manifestVersion": "1.0.0",
+  "id": "return-refund-make",
+  "displayName": "Commerce return and refund orchestration",
+  "platform": "make",
+  "nativeArtifactPath": "automations/make/return-refund/blueprint.json",
+  "sourceChecksum": "b3678c406144578bb814bb95e9cd1c23d98b701b735c61d68f12293c86ccf2d1",
+  "owner": {
+    "email": "automation.owner@example.test",
+    "supportGroup": "Commerce Operations"
+  },
+  "businessCapability": "Synthetic return and refund handling",
+  "riskTier": "HIGH",
+  "dataClassification": "CONFIDENTIAL",
+  "trigger": {
+    "type": "WEBHOOK",
+    "expectedSlaSeconds": 600,
+    "alertAfterSeconds": 900
+  },
+  "dependencies": [
+    {
+      "name": "synthetic-operations-api",
+      "type": "API",
+      "required": true
+    }
+  ],
+  "targets": [
+    {
+      "environment": "demo",
+      "releaseStrategy": "MANUAL"
+    },
+    {
+      "environment": "production",
+      "releaseStrategy": "PROMOTED"
+    }
+  ],
+  "runbookPath": "docs/runbooks/return-refund.md",
+  "recoveryPath": "docs/runbooks/return-refund-recovery.md",
+  "credentialReferences": [
+    {
+      "name": "SYNTHETIC_COMMERCE_API",
+      "purpose": "Call synthetic order, return, and refund resources"
+    },
+    {
+      "name": "MAKE_CONNECTION",
+      "purpose": "Optional hosted scenario connection reference"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "platformVersion": "18.0.0",
+  "title": "Synthetic Partner Onboarding",
+  "authentication": {
+    "type": "custom",
+    "connectionReference": "SYNTHETIC_PARTNER_API"
+  },
+  "triggers": [
+    {
+      "key": "new_partner_application",
+      "type": "polling",
+      "deduplicationField": "applicationId"
+    }
+  ],
+  "actions": [
+    {
+      "key": "verify_partner_documents",
+      "idempotencyField": "requestId"
+    },
+    {
+      "key": "create_partner_case",
+      "idempotencyField": "requestId"
+    },
+    {
+      "key": "update_partner_status",
+      "idempotencyField": "requestId"
+    }
+  ]
+}

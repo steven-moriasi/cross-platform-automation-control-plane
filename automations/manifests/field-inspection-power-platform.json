@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0",
+  "manifestVersion": "1.0.0",
+  "id": "field-inspection-power-platform",
+  "displayName": "Field inspection and approval",
+  "platform": "power-platform",
+  "nativeArtifactPath": "automations/power-platform/field-inspection/custom-connector/apiDefinition.swagger.json",
+  "sourceChecksum": "2247acefb2d72c8b81c7142e70ccdb31bbeacba1319e067faeabe50e25ca1361",
+  "owner": {
+    "email": "automation.owner@example.test",
+    "supportGroup": "Field Operations"
+  },
+  "businessCapability": "Synthetic field inspection approval",
+  "riskTier": "MEDIUM",
+  "dataClassification": "CONFIDENTIAL",
+  "trigger": {
+    "type": "EVENT",
+    "expectedSlaSeconds": 1800,
+    "alertAfterSeconds": 3600
+  },
+  "dependencies": [
+    {
+      "name": "synthetic-operations-api",
+      "type": "API",
+      "required": true
+    },
+    {
+      "name": "dataverse",
+      "type": "DATABASE",
+      "required": false
+    }
+  ],
+  "targets": [
+    {
+      "environment": "demo",
+      "releaseStrategy": "MANUAL"
+    },
+    {
+      "environment": "production",
+      "releaseStrategy": "PROMOTED"
+    }
+  ],
+  "runbookPath": "docs/runbooks/field-inspection.md",
+  "recoveryPath": "docs/runbooks/field-inspection-recovery.md",
+  "credentialReferences": [
+    {
+      "name": "SYNTHETIC_INSPECTION_API",
+      "purpose": "Call synthetic field inspection resources"
+    },
+    {
+      "name": "POWER_PLATFORM_CONNECTION",
+      "purpose": "Optional hosted environment connection reference"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0",
+  "manifestVersion": "1.0.0",
+  "id": "claims-intake-n8n",
+  "displayName": "Insurance claim intake and triage",
+  "platform": "n8n",
+  "nativeArtifactPath": "automations/n8n/claims-intake/workflow.json",
+  "sourceChecksum": "980e625051b0bfa453992aeec3a83aaec128470253a554439187d4d7bc2855f1",
+  "owner": {
+    "email": "automation.owner@example.test",
+    "supportGroup": "Claims Automation"
+  },
+  "businessCapability": "Synthetic insurance claim intake",
+  "riskTier": "HIGH",
+  "dataClassification": "CONFIDENTIAL",
+  "trigger": {
+    "type": "WEBHOOK",
+    "expectedSlaSeconds": 300,
+    "alertAfterSeconds": 600
+  },
+  "dependencies": [
+    {
+      "name": "synthetic-operations-api",
+      "type": "API",
+      "required": true
+    },
+    {
+      "name": "control-plane-telemetry",
+      "type": "API",
+      "required": true
+    }
+  ],
+  "targets": [
+    {
+      "environment": "demo",
+      "releaseStrategy": "PIPELINE"
+    },
+    {
+      "environment": "staging",
+      "releaseStrategy": "PROMOTED"
+    }
+  ],
+  "runbookPath": "docs/runbooks/claims-intake.md",
+  "recoveryPath": "docs/runbooks/claims-intake-recovery.md",
+  "credentialReferences": [
+    {
+      "name": "SYNTHETIC_OPERATIONS_API",
+      "purpose": "Call the synthetic policy and claim resources"
+    },
+    {
+      "name": "CONTROL_PLANE_TELEMETRY",
+      "purpose": "Submit normalized execution events"
+    }
+  ]
+}

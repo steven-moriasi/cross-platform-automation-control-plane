@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0",
+  "manifestVersion": "1.0.0",
+  "id": "partner-onboarding-zapier",
+  "displayName": "Partner onboarding integration",
+  "platform": "zapier",
+  "nativeArtifactPath": "automations/zapier/partner-onboarding/integration-definition.json",
+  "sourceChecksum": "b412920194226de2bcad1349bfdbe3b978181b27723d51ea3579ed5a3a3e0cac",
+  "owner": {
+    "email": "automation.owner@example.test",
+    "supportGroup": "Partner Operations"
+  },
+  "businessCapability": "Synthetic partner onboarding",
+  "riskTier": "MEDIUM",
+  "dataClassification": "CONFIDENTIAL",
+  "trigger": {
+    "type": "POLLING",
+    "expectedSlaSeconds": 900,
+    "alertAfterSeconds": 1200
+  },
+  "dependencies": [
+    {
+      "name": "synthetic-operations-api",
+      "type": "API",
+      "required": true
+    }
+  ],
+  "targets": [
+    {
+      "environment": "demo",
+      "releaseStrategy": "MANUAL"
+    },
+    {
+      "environment": "production",
+      "releaseStrategy": "PROMOTED"
+    }
+  ],
+  "runbookPath": "docs/runbooks/partner-onboarding.md",
+  "recoveryPath": "docs/runbooks/partner-onboarding-recovery.md",
+  "credentialReferences": [
+    {
+      "name": "SYNTHETIC_PARTNER_API",
+      "purpose": "Call synthetic partner application resources"
+    },
+    {
+      "name": "ZAPIER_DEPLOYMENT",
+      "purpose": "Optional hosted deployment reference"
+    }
+  ]
+}

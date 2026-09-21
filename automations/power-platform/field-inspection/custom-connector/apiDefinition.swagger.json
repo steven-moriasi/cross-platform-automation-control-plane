@@ -1,0 +1,40 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Synthetic Operations API",
+    "description": "Synthetic field inspection operations for local contract validation.",
+    "version": "1.0.0"
+  },
+  "host": "synthetic-operations-api",
+  "basePath": "/api/v1",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/field-inspections/{inspectionId}": {
+      "get": {
+        "operationId": "GetFieldInspection",
+        "parameters": [
+          {
+            "name": "inspectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Synthetic field inspection"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "name": "x-synthetic-api-key",
+      "in": "header"
+    }
+  }
+}
