@@ -14,5 +14,8 @@
     "lint": "eslint src",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
   }
 }

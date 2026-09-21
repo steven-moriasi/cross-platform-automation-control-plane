@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stevenmoriasi.com/schemas/automation-control-plane/automation-manifest-1.0.json",
+  "title": "Automation governance manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "manifestVersion",
+    "id",
+    "displayName",
+    "platform",
+    "nativeArtifactPath",
+    "sourceChecksum",
+    "owner",
+    "businessCapability",
+    "riskTier",
+    "dataClassification",
+    "trigger",
+    "dependencies",
+    "targets",
+    "runbookPath",
+    "recoveryPath",
+    "credentialReferences"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "manifestVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 100
+    },
+    "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "platform": {
+      "enum": ["n8n", "zapier", "make", "power-platform"]
+    },
+    "nativeArtifactPath": { "$ref": "#/$defs/repositoryPath" },
+    "sourceChecksum": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["email", "supportGroup"],
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "supportGroup": { "type": "string", "minLength": 1, "maxLength": 120 }
+      }
+    },
+    "businessCapability": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "riskTier": { "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+    "dataClassification": {
+      "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "expectedSlaSeconds", "alertAfterSeconds"],
+      "properties": {
+        "type": {
+          "enum": ["WEBHOOK", "SCHEDULE", "POLLING", "EVENT", "MANUAL"]
+        },
+        "expectedSlaSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 604800
+        },
+        "alertAfterSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 604800
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "type", "required"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "type": { "enum": ["API", "DATABASE", "QUEUE", "SERVICE"] },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["environment", "releaseStrategy"],
+        "properties": {
+          "environment": { "enum": ["demo", "staging", "production"] },
+          "releaseStrategy": {
+            "enum": ["MANUAL", "PROMOTED", "PIPELINE"]
+          }
+        }
+      }
+    },
+    "runbookPath": { "$ref": "#/$defs/repositoryPath" },
+    "recoveryPath": { "$ref": "#/$defs/repositoryPath" },
+    "credentialReferences": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "purpose"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{2,79}$"
+          },
+          "purpose": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "repositoryPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  }
+}
