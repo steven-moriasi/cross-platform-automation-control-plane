@@ -40,6 +40,34 @@ credentials.
 No sample credential, customer record, insurer process, or production execution
 is included.
 
+## Local runtime
+
+Requirements:
+
+- Docker with Compose v2;
+- Node.js 22.20.0 and pnpm 12.4.1 for checks outside containers.
+
+Start the current application stack:
+
+```bash
+cp .env.example .env
+pnpm app:start
+```
+
+The command builds immutable application images, waits for PostgreSQL, verifies
+and applies checksum-protected migrations, then starts the API, worker,
+synthetic operations API, and web application.
+
+| Endpoint                             | Purpose                                      |
+| ------------------------------------ | -------------------------------------------- |
+| `http://localhost:3000`              | Operations web                               |
+| `http://localhost:4000/health/ready` | Control-plane readiness                      |
+| `http://localhost:4100/api/v1/meta`  | Synthetic API capabilities and data boundary |
+
+Set `WEB_PORT` in `.env` when port 3000 is already allocated. Stop the stack
+with `pnpm app:stop`; add `--volumes` to the underlying Compose command only
+when intentionally deleting local PostgreSQL state.
+
 ## Architecture
 
 See [Architecture](docs/architecture.md) for what the system builds, why the

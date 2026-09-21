@@ -1,0 +1,11 @@
+.data
+.env
+.git
+.github
+.next
+coverage
+dist
+evidence
+node_modules
+solution-package
+*.log

@@ -12,6 +12,8 @@ catalogMode: strict
 
 cleanupUnusedCatalogs: true
 
+injectWorkspacePackages: true
+
 linkWorkspacePackages: true
 
 savePrefix: ""

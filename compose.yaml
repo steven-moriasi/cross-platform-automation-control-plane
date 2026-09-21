@@ -1,0 +1,108 @@
+name: cross-platform-automation-control-plane
+
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-automation_control_plane}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-automation-local-only}
+      POSTGRES_USER: ${POSTGRES_USER:-automation}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-automation} -d
+          ${POSTGRES_DB:-automation_control_plane}",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    ports:
+      - "5438:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  control-plane-migrate:
+    build:
+      context: .
+      dockerfile: services/control-plane/Dockerfile
+    command: ["node", "dist/database/migrate.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-automation}:${POSTGRES_PASSWORD:-automation-local-only}@postgres:5432/${POSTGRES_DB:-automation_control_plane}
+      SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
+    restart: "no"
+
+  control-plane-api:
+    build:
+      context: .
+      dockerfile: services/control-plane/Dockerfile
+    depends_on:
+      control-plane-migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-automation}:${POSTGRES_PASSWORD:-automation-local-only}@postgres:5432/${POSTGRES_DB:-automation_control_plane}
+      PORT: 4000
+      SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
+      WEB_ORIGIN: http://localhost:${WEB_PORT:-3000}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4000/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+
+  control-plane-worker:
+    build:
+      context: .
+      dockerfile: services/control-plane/Dockerfile
+    command: ["node", "dist/worker.js"]
+    depends_on:
+      control-plane-migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-automation}:${POSTGRES_PASSWORD:-automation-local-only}@postgres:5432/${POSTGRES_DB:-automation_control_plane}
+      SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
+    restart: unless-stopped
+
+  synthetic-operations-api:
+    build:
+      context: .
+      dockerfile: services/synthetic-operations-api/Dockerfile
+    environment:
+      PORT: 4100
+      SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
+      WEB_ORIGIN: http://localhost:${WEB_PORT:-3000}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4100/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    ports:
+      - "4100:4100"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    depends_on:
+      control-plane-api:
+        condition: service_healthy
+      synthetic-operations-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
