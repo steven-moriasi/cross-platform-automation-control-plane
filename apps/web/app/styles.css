@@ -46,6 +46,80 @@ a {
   color: inherit;
 }
 
+.login {
+  align-items: center;
+  background:
+    radial-gradient(
+      circle at 14% 16%,
+      rgba(81, 200, 160, 0.18),
+      transparent 30%
+    ),
+    var(--sidebar);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.login__panel {
+  background: var(--panel);
+  border-radius: 20px;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.2);
+  max-width: 460px;
+  padding: 42px;
+  width: 100%;
+}
+
+.login__panel .brand__mark {
+  margin-bottom: 30px;
+}
+
+.login__panel h1 {
+  margin-bottom: 18px;
+}
+
+.login__intro {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 26px;
+}
+
+.login__button {
+  background: var(--teal);
+  border-radius: 9px;
+  color: #ffffff;
+  display: block;
+  font-size: 14px;
+  font-weight: 750;
+  padding: 13px 18px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.login__button:hover,
+.login__button:focus-visible {
+  background: #075f4d;
+  outline: 3px solid rgba(8, 119, 94, 0.2);
+}
+
+.login__error {
+  background: var(--red-soft);
+  border: 1px solid #efcaca;
+  border-radius: 8px;
+  color: var(--red);
+  font-size: 13px;
+  margin-bottom: 18px;
+  padding: 11px 13px;
+}
+
+.login__boundary {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 22px 0 0;
+  text-align: center;
+}
+
 .application {
   display: grid;
   min-height: 100vh;
@@ -246,6 +320,25 @@ h3 {
   color: var(--muted);
   font-size: 11px;
   margin-top: 3px;
+}
+
+.identity__logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+  padding: 7px 9px;
+}
+
+.identity__logout:hover,
+.identity__logout:focus-visible {
+  border-color: var(--teal);
+  color: var(--teal);
+  outline: none;
 }
 
 .notice,
@@ -550,6 +643,13 @@ h3 {
   border-color: var(--teal);
   color: var(--teal);
   outline: none;
+}
+
+.access-note {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: right;
 }
 
 .incident__severity {

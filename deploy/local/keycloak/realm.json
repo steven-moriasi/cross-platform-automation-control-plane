@@ -1,0 +1,172 @@
+{
+  "realm": "automation-control-plane",
+  "displayName": "Automation Control Plane",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "accessTokenLifespan": 1800,
+  "roles": {
+    "realm": [
+      {
+        "name": "PLATFORM_ADMIN",
+        "description": "Full control-plane administration"
+      },
+      {
+        "name": "AUTOMATION_OWNER",
+        "description": "Own automation definitions and release requests"
+      },
+      {
+        "name": "RELEASE_APPROVER",
+        "description": "Approve or reject governed releases"
+      },
+      {
+        "name": "OPERATOR",
+        "description": "Operate executions and incidents"
+      },
+      {
+        "name": "AUDITOR",
+        "description": "Inspect immutable audit and evidence records"
+      },
+      {
+        "name": "VIEWER",
+        "description": "Read control-plane state"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "automation-control-plane-web",
+      "name": "Automation Control Plane Web",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "automation-control-plane-local-client-secret",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/api/auth/callback",
+        "http://localhost:3010/api/auth/callback"
+      ],
+      "webOrigins": ["http://localhost:3000", "http://localhost:3010"],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3000/login##http://localhost:3010/login",
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "control-plane-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "control-plane-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "lightweight.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@example.test",
+      "firstName": "Amina",
+      "lastName": "Administrator",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin-local-only",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["PLATFORM_ADMIN"]
+    },
+    {
+      "username": "owner",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "owner@example.test",
+      "firstName": "Owen",
+      "lastName": "Automation Owner",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "owner-local-only",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["AUTOMATION_OWNER"]
+    },
+    {
+      "username": "approver",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "approver@example.test",
+      "firstName": "Rita",
+      "lastName": "Release Approver",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "approver-local-only",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["RELEASE_APPROVER"]
+    },
+    {
+      "username": "operator",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "operator@example.test",
+      "firstName": "Olivia",
+      "lastName": "Operator",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "operator-local-only",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["OPERATOR"]
+    },
+    {
+      "username": "auditor",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "auditor@example.test",
+      "firstName": "Audrey",
+      "lastName": "Auditor",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "auditor-local-only",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["AUDITOR"]
+    },
+    {
+      "username": "viewer",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "viewer@example.test",
+      "firstName": "Victor",
+      "lastName": "Viewer",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "viewer-local-only",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["VIEWER"]
+    }
+  ]
+}

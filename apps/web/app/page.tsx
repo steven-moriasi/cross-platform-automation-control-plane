@@ -1,22 +1,39 @@
 import { MetricCard } from "../components/metric-card";
 import { PlatformMark } from "../components/platform-mark";
 import {
+  canApproveReleases,
+  navigationForPrincipal,
+} from "../lib/authorization";
+import { requireSession } from "../lib/auth/session";
+import { getVerifiedPrincipal } from "../lib/control-plane";
+import {
   automationPortfolio,
   countHealthy,
   countHostedPending,
   formatPlatform,
 } from "../lib/portfolio";
 
-const navigation = [
-  "Overview",
-  "Automations",
-  "Releases",
-  "Executions",
-  "Incidents",
-  "Audit",
-] as const;
+function formatRole(role: string | undefined): string {
+  return (role ?? "VIEWER")
+    .toLowerCase()
+    .split("_")
+    .map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`)
+    .join(" ");
+}
 
-export default function OverviewPage(): React.JSX.Element {
+function initials(displayName: string): string {
+  return displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+export default async function OverviewPage(): Promise<React.JSX.Element> {
+  const session = await requireSession();
+  const principal = await getVerifiedPrincipal(session.accessToken);
+  const navigation = navigationForPrincipal(principal);
+  const mayApproveReleases = canApproveReleases(principal);
   const healthyCount = countHealthy(automationPortfolio);
   const hostedPendingCount = countHostedPending(automationPortfolio);
 
@@ -68,16 +85,21 @@ export default function OverviewPage(): React.JSX.Element {
         <header className="topbar">
           <div>
             <p className="eyebrow">Operations portfolio</p>
-            <h1>Good morning, operator.</h1>
+            <h1>Good morning, {principal.displayName.split(" ")[0]}.</h1>
           </div>
           <div className="identity">
             <span className="identity__avatar" aria-hidden>
-              SO
+              {initials(principal.displayName)}
             </span>
             <span>
-              <strong>Steven Ongati</strong>
-              <small>Platform administrator</small>
+              <strong>{principal.displayName}</strong>
+              <small>{formatRole(principal.roles[0])}</small>
             </span>
+            <form action="/api/auth/logout" method="post">
+              <button className="identity__logout" type="submit">
+                Sign out
+              </button>
+            </form>
           </div>
         </header>
 
@@ -185,7 +207,11 @@ export default function OverviewPage(): React.JSX.Element {
                 <strong>Claims intake · 1.3.0</strong>
                 <p>Checksum changed after dependency update</p>
               </div>
-              <button type="button">Review</button>
+              {mayApproveReleases ? (
+                <button type="button">Review</button>
+              ) : (
+                <span className="access-note">View only</span>
+              )}
             </div>
             <div className="release-item">
               <span className="release-item__risk release-item__risk--medium">
@@ -195,7 +221,11 @@ export default function OverviewPage(): React.JSX.Element {
                 <strong>Partner onboarding · 0.4.0</strong>
                 <p>Local contract evidence is complete</p>
               </div>
-              <button type="button">Review</button>
+              {mayApproveReleases ? (
+                <button type="button">Review</button>
+              ) : (
+                <span className="access-note">View only</span>
+              )}
             </div>
           </article>
 

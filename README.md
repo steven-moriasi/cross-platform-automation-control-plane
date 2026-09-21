@@ -55,14 +55,28 @@ pnpm app:start
 ```
 
 The command builds immutable application images, waits for PostgreSQL, verifies
-and applies checksum-protected migrations, then starts the API, worker,
-synthetic operations API, and web application.
+and applies checksum-protected migrations, imports the local Keycloak realm,
+then starts the API, worker, synthetic operations API, and authenticated web
+application.
 
 | Endpoint                             | Purpose                                      |
 | ------------------------------------ | -------------------------------------------- |
 | `http://localhost:3000`              | Operations web                               |
 | `http://localhost:4000/health/ready` | Control-plane readiness                      |
 | `http://localhost:4100/api/v1/meta`  | Synthetic API capabilities and data boundary |
+| `http://localhost:8089`              | Local Keycloak identity provider             |
+
+The imported realm contains synthetic users for each role. Use the username
+`admin` and password `admin-local-only` for full local access; the other
+usernames are `owner`, `approver`, `operator`, `auditor`, and `viewer`, each
+with the password pattern `<username>-local-only`. These credentials are only
+for the disposable local environment.
+
+The web application uses authorization code flow with PKCE, state, and nonce
+validation. It stores tokens in an encrypted, HTTP-only session cookie and
+validates the access token again through the control-plane API before rendering
+the operations shell. UI visibility is role-aware, but the API remains the
+authorization boundary.
 
 Set `WEB_PORT` in `.env` when port 3000 is already allocated. Stop the stack
 with `pnpm app:stop`; add `--volumes` to the underlying Compose command only
