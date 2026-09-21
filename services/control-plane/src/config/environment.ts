@@ -16,6 +16,17 @@ const environmentSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
+  OIDC_AUDIENCE: z.string().trim().min(1).default("control-plane-api"),
+  OIDC_ISSUER: z
+    .string()
+    .url()
+    .default("http://localhost:8089/realms/automation-control-plane"),
+  OIDC_JWKS_URL: z
+    .string()
+    .url()
+    .default(
+      "http://localhost:8089/realms/automation-control-plane/protocol/openid-connect/certs",
+    ),
   PORT: z.coerce.number().int().min(1).max(65_535).default(4000),
   SERVICE_VERSION: z.string().trim().min(1).max(64).default("0.1.0"),
   WEB_ORIGIN: z.string().url().default("http://localhost:3000"),
@@ -25,6 +36,9 @@ export interface Environment {
   readonly databaseUrl: string;
   readonly maxRequestBodyBytes: number;
   readonly nodeEnvironment: "development" | "production" | "test";
+  readonly oidcAudience: string;
+  readonly oidcIssuer: string;
+  readonly oidcJwksUrl: string;
   readonly port: number;
   readonly serviceVersion: string;
   readonly webOrigin: string;
@@ -39,6 +53,9 @@ export function readEnvironment(source: NodeJS.ProcessEnv): Environment {
     databaseUrl: result.DATABASE_URL,
     maxRequestBodyBytes: result.MAX_REQUEST_BODY_BYTES,
     nodeEnvironment: result.NODE_ENV,
+    oidcAudience: result.OIDC_AUDIENCE,
+    oidcIssuer: result.OIDC_ISSUER,
+    oidcJwksUrl: result.OIDC_JWKS_URL,
     port: result.PORT,
     serviceVersion: result.SERVICE_VERSION,
     webOrigin: result.WEB_ORIGIN,

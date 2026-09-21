@@ -6,8 +6,10 @@ import {
   ServiceUnavailableException,
 } from "@nestjs/common";
 
+import { AllowAnonymous } from "../auth/auth.decorators.js";
 import { HealthService } from "./health.service.js";
 
+@AllowAnonymous()
 @Controller("health")
 export class HealthController {
   public constructor(
