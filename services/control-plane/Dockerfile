@@ -21,6 +21,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 COPY --from=build --chown=node:node /out ./
+COPY --chown=node:node automations ./automations
+COPY --chown=node:node docs/runbooks ./docs/runbooks
 
 USER node
 EXPOSE 4000

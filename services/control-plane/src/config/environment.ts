@@ -1,6 +1,12 @@
 import { z } from "zod";
+import { resolve } from "node:path";
 
 const environmentSchema = z.object({
+  CATALOG_REPOSITORY_ROOT: z
+    .string()
+    .trim()
+    .min(1)
+    .default(resolve(process.cwd(), "../..")),
   DATABASE_URL: z
     .string()
     .url()
@@ -33,6 +39,7 @@ const environmentSchema = z.object({
 });
 
 export interface Environment {
+  readonly catalogRepositoryRoot: string;
   readonly databaseUrl: string;
   readonly maxRequestBodyBytes: number;
   readonly nodeEnvironment: "development" | "production" | "test";
@@ -50,6 +57,7 @@ export function readEnvironment(source: NodeJS.ProcessEnv): Environment {
   const result = environmentSchema.parse(source);
 
   return {
+    catalogRepositoryRoot: result.CATALOG_REPOSITORY_ROOT,
     databaseUrl: result.DATABASE_URL,
     maxRequestBodyBytes: result.MAX_REQUEST_BODY_BYTES,
     nodeEnvironment: result.NODE_ENV,

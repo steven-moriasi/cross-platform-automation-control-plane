@@ -119,6 +119,25 @@ export const automationManifestSchema = z
 
 export type AutomationManifest = z.infer<typeof automationManifestSchema>;
 
+export const checksumStatuses = ["MATCH", "MISMATCH"] as const;
+export type ChecksumStatus = (typeof checksumStatuses)[number];
+
+export interface CatalogAutomation extends AutomationManifest {
+  readonly checksumStatus: ChecksumStatus;
+  readonly observedSourceChecksum: string;
+  readonly synchronizedAt: string;
+}
+
+export interface CatalogAuditRecord {
+  readonly automationId: string;
+  readonly currentSourceChecksum: string;
+  readonly eventType: "REGISTERED" | "SOURCE_CHECKSUM_CHANGED";
+  readonly id: string;
+  readonly manifestChecksum: string;
+  readonly previousSourceChecksum?: string;
+  readonly recordedAt: string;
+}
+
 const prohibitedSecretKeys = new Set([
   "accesskey",
   "apikey",

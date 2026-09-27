@@ -70,6 +70,7 @@ services:
       keycloak:
         condition: service_healthy
     environment:
+      CATALOG_REPOSITORY_ROOT: /app
       DATABASE_URL: postgres://${POSTGRES_USER:-automation}:${POSTGRES_PASSWORD:-automation-local-only}@postgres:5432/${POSTGRES_DB:-automation_control_plane}
       OIDC_AUDIENCE: control-plane-api
       OIDC_ISSUER: http://localhost:8089/realms/automation-control-plane
