@@ -1,0 +1,53 @@
+{
+  "id": "claims-intake-error",
+  "name": "Synthetic claim intake failure telemetry",
+  "active": false,
+  "versionId": "3af14010-d0a2-480c-a022-ab57a7d7c004",
+  "nodes": [
+    {
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "failure-telemetry",
+      "name": "Emit failure telemetry",
+      "type": "CUSTOM.controlPlaneTelemetry",
+      "typeVersion": 1,
+      "position": [260, 0],
+      "parameters": {
+        "controlPlaneUrl": "http://control-plane-api:4000",
+        "automationId": "claims-intake-n8n",
+        "releaseVersion": "1.0.0",
+        "environment": "demo",
+        "executionId": "={{ $json.execution.id }}",
+        "status": "FAILED",
+        "durationMilliseconds": 0,
+        "errorCode": "={{ $json.execution.error.name || 'WORKFLOW_ERROR' }}",
+        "correlationId": "={{ $json.execution.id }}"
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Emit failure telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": []
+}

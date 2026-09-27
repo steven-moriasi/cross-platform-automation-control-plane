@@ -1,5 +1,8 @@
 {
+  "id": "claims-intake-n8n",
   "name": "Synthetic insurance claim intake and triage",
+  "active": false,
+  "versionId": "c91534d7-e326-460c-b06c-2dc1b95c1d7b",
   "nodes": [
     {
       "id": "claim-webhook",
@@ -7,9 +10,12 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [0, 0],
+      "webhookId": "synthetic-claims",
       "parameters": {
         "httpMethod": "POST",
-        "path": "synthetic-claims"
+        "path": "synthetic-claims",
+        "responseMode": "responseNode",
+        "options": {}
       }
     },
     {
@@ -17,10 +23,280 @@
       "name": "Validate claim contract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [260, 0],
+      "position": [240, 0],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "return $input.all();"
+        "jsCode": "const input = $json.body ?? $json;\nconst allowed = new Set(['claimId', 'correlationId', 'documentReferences', 'failureMode', 'policyId', 'reportedAmount']);\nfor (const key of Object.keys(input)) {\n  if (!allowed.has(key)) throw new Error(`Unexpected claim field: ${key}`);\n}\nif (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.claimId ?? '')) throw new Error('Invalid claimId');\nif (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.policyId ?? '')) throw new Error('Invalid policyId');\nif (!Array.isArray(input.documentReferences) || input.documentReferences.length < 1 || input.documentReferences.length > 10) throw new Error('documentReferences must contain 1-10 identifiers');\nif (!input.documentReferences.every((value) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value))) throw new Error('Invalid document reference');\nif (typeof input.reportedAmount !== 'number' || input.reportedAmount <= 0 || input.reportedAmount > 10000000) throw new Error('Invalid reportedAmount');\nif (typeof input.correlationId !== 'string' || input.correlationId.length < 8 || input.correlationId.length > 100) throw new Error('Invalid correlationId');\nconst failureMode = input.failureMode ?? '';\nif (!['', 'TRANSIENT', 'TIMEOUT', 'UNCERTAIN'].includes(failureMode)) throw new Error('Invalid failureMode');\nreturn [{ json: {\n  claim: {\n    claimId: input.claimId,\n    documentReferences: input.documentReferences,\n    policyId: input.policyId,\n    reportedAmount: input.reportedAmount,\n  },\n  correlationId: input.correlationId,\n  failureMode,\n  idempotencyKey: `n8n:${input.claimId}`,\n  startedAt: Date.now(),\n} }];"
+      }
+    },
+    {
+      "id": "get-policy",
+      "name": "Get policy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 500,
+      "parameters": {
+        "method": "GET",
+        "url": "=http://synthetic-operations-api:4100/api/v1/policies/{{ $json.claim.policyId }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "uncertain-outcome-requested",
+      "name": "Uncertain outcome requested",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [740, 0],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "uncertain-outcome-condition",
+              "leftValue": "={{ $('Validate claim contract').item.json.failureMode }}",
+              "rightValue": "UNCERTAIN",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "create-claim",
+      "name": "Create claim",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [980, 120],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 500,
+      "parameters": {
+        "method": "POST",
+        "url": "http://synthetic-operations-api:4100/api/v1/claims",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-idempotency-key",
+              "value": "={{ $('Validate claim contract').item.json.idempotencyKey }}"
+            },
+            {
+              "name": "x-synthetic-failure",
+              "value": "={{ $('Validate claim contract').item.json.failureMode }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($('Validate claim contract').item.json.claim) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "autodetect"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "create-claim-for-reconciliation",
+      "name": "Create claim for reconciliation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [980, -120],
+      "parameters": {
+        "method": "POST",
+        "url": "http://synthetic-operations-api:4100/api/v1/claims",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-idempotency-key",
+              "value": "={{ $('Validate claim contract').item.json.idempotencyKey }}"
+            },
+            {
+              "name": "x-synthetic-failure",
+              "value": "UNCERTAIN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($('Validate claim contract').item.json.claim) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "autodetect"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "normalize-claim",
+      "name": "Normalize claim result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1240, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const context = $('Validate claim contract').item.json;\nif ($json.statusCode === 504 && context.failureMode === 'UNCERTAIN') {\n  return [{ json: { ...context, needsReconciliation: true } }];\n}\nif ($json.statusCode >= 400) throw new Error(`Claim API returned ${$json.statusCode}`);\nreturn [{ json: { ...context, claimReplay: $json.body.replayed, claimResult: $json.body.value, needsReconciliation: false } }];"
+      }
+    },
+    {
+      "id": "needs-reconciliation",
+      "name": "Needs reconciliation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1480, 0],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "needs-reconciliation-condition",
+              "leftValue": "={{ $json.needsReconciliation }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "reconcile-claim",
+      "name": "Reconcile claim",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1720, -120],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 500,
+      "parameters": {
+        "method": "GET",
+        "url": "=http://synthetic-operations-api:4100/api/v1/claims/{{ $json.claim.claimId }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "normalize-reconciliation",
+      "name": "Normalize reconciliation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1960, -120],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const context = $('Normalize claim result').item.json;\nreturn [{ json: { ...context, claimResult: $json, needsReconciliation: false, reconciled: true } }];"
+      }
+    },
+    {
+      "id": "human-review",
+      "name": "Human review required",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2200, 0],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "human-review-condition",
+              "leftValue": "={{ $json.claimResult.status }}",
+              "rightValue": "HUMAN_REVIEW",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "wait-for-review",
+      "name": "Wait for review",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2440, -120],
+      "parameters": {
+        "amount": 1,
+        "unit": "seconds"
+      }
+    },
+    {
+      "id": "record-review",
+      "name": "Record synthetic review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2680, -120],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "return [{ json: { ...$json, humanReview: { decision: 'APPROVED', reviewer: 'synthetic-reviewer' } } }];"
+      }
+    },
+    {
+      "id": "success-telemetry",
+      "name": "Emit success telemetry",
+      "type": "CUSTOM.controlPlaneTelemetry",
+      "typeVersion": 1,
+      "position": [2920, 0],
+      "parameters": {
+        "controlPlaneUrl": "http://control-plane-api:4000",
+        "automationId": "claims-intake-n8n",
+        "releaseVersion": "1.0.0",
+        "environment": "demo",
+        "executionId": "={{ $execution.id }}",
+        "status": "SUCCEEDED",
+        "durationMilliseconds": "={{ Date.now() - $json.startedAt }}",
+        "errorCode": "",
+        "correlationId": "={{ $json.correlationId }}"
+      }
+    },
+    {
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [3160, 0],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 202
+        }
       }
     }
   ],
@@ -35,10 +311,177 @@
           }
         ]
       ]
+    },
+    "Validate claim contract": {
+      "main": [
+        [
+          {
+            "node": "Get policy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get policy": {
+      "main": [
+        [
+          {
+            "node": "Uncertain outcome requested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Uncertain outcome requested": {
+      "main": [
+        [
+          {
+            "node": "Create claim for reconciliation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create claim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create claim": {
+      "main": [
+        [
+          {
+            "node": "Normalize claim result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create claim for reconciliation": {
+      "main": [
+        [
+          {
+            "node": "Normalize claim result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize claim result": {
+      "main": [
+        [
+          {
+            "node": "Needs reconciliation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs reconciliation": {
+      "main": [
+        [
+          {
+            "node": "Reconcile claim",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Human review required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconcile claim": {
+      "main": [
+        [
+          {
+            "node": "Normalize reconciliation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize reconciliation": {
+      "main": [
+        [
+          {
+            "node": "Human review required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human review required": {
+      "main": [
+        [
+          {
+            "node": "Wait for review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Emit success telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for review": {
+      "main": [
+        [
+          {
+            "node": "Record synthetic review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record synthetic review": {
+      "main": [
+        [
+          {
+            "node": "Emit success telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emit success telemetry": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "errorWorkflow": "claims-intake-error",
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
   },
   "tags": []
 }
