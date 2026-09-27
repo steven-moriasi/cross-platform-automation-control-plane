@@ -77,6 +77,8 @@ services:
       OIDC_JWKS_URL: http://keycloak:8080/realms/automation-control-plane/protocol/openid-connect/certs
       PORT: 4000
       SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
+      TELEMETRY_CLIENT_ID: ${TELEMETRY_CLIENT_ID:-local-automation-packages}
+      TELEMETRY_SIGNING_SECRET: ${TELEMETRY_SIGNING_SECRET:-local-telemetry-signing-secret-change-me}
       WEB_ORIGIN: http://localhost:${WEB_PORT:-3000}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4000/health/ready"]

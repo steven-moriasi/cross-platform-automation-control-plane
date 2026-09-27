@@ -10,6 +10,7 @@ describe("control-plane environment", () => {
     expect(environment.catalogRepositoryRoot).toBeTruthy();
     expect(environment.maxRequestBodyBytes).toBe(262_144);
     expect(environment.databaseUrl).toContain("automation_control_plane");
+    expect(environment.telemetryClientId).toBe("local-automation-packages");
   });
 
   it("rejects invalid network configuration", () => {

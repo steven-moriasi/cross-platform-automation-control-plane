@@ -35,6 +35,22 @@ const environmentSchema = z.object({
     ),
   PORT: z.coerce.number().int().min(1).max(65_535).default(4000),
   SERVICE_VERSION: z.string().trim().min(1).max(64).default("0.1.0"),
+  TELEMETRY_CLIENT_ID: z
+    .string()
+    .trim()
+    .min(3)
+    .max(100)
+    .default("local-automation-packages"),
+  TELEMETRY_MAX_CLOCK_SKEW_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(30)
+    .max(900)
+    .default(300),
+  TELEMETRY_SIGNING_SECRET: z
+    .string()
+    .min(32)
+    .default("local-telemetry-signing-secret-change-me"),
   WEB_ORIGIN: z.string().url().default("http://localhost:3000"),
 });
 
@@ -48,6 +64,9 @@ export interface Environment {
   readonly oidcJwksUrl: string;
   readonly port: number;
   readonly serviceVersion: string;
+  readonly telemetryClientId: string;
+  readonly telemetryMaxClockSkewSeconds: number;
+  readonly telemetrySigningSecret: string;
   readonly webOrigin: string;
 }
 
@@ -66,6 +85,9 @@ export function readEnvironment(source: NodeJS.ProcessEnv): Environment {
     oidcJwksUrl: result.OIDC_JWKS_URL,
     port: result.PORT,
     serviceVersion: result.SERVICE_VERSION,
+    telemetryClientId: result.TELEMETRY_CLIENT_ID,
+    telemetryMaxClockSkewSeconds: result.TELEMETRY_MAX_CLOCK_SKEW_SECONDS,
+    telemetrySigningSecret: result.TELEMETRY_SIGNING_SECRET,
     webOrigin: result.WEB_ORIGIN,
   };
 }

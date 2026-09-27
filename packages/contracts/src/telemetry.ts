@@ -73,3 +73,10 @@ export function parseExecutionEvent(value: unknown): ExecutionEvent {
   assertNoEmbeddedSecrets(value, "executionEvent");
   return executionEventSchema.parse(value);
 }
+
+export function executionEventSigningPayload(
+  event: ExecutionEvent,
+  timestamp: number,
+): string {
+  return `${timestamp}.${JSON.stringify(event)}`;
+}

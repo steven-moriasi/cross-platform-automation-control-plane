@@ -7,9 +7,16 @@ import { EnvironmentModule } from "./config/environment.module.js";
 import { DatabaseModule } from "./database/database.module.js";
 import { HealthController } from "./health/health.controller.js";
 import { HealthService } from "./health/health.service.js";
+import { TelemetryModule } from "./telemetry/telemetry.module.js";
 
 @Module({
-  imports: [AuthModule, CatalogModule, EnvironmentModule, DatabaseModule],
+  imports: [
+    AuthModule,
+    CatalogModule,
+    EnvironmentModule,
+    DatabaseModule,
+    TelemetryModule,
+  ],
   controllers: [HealthController, SessionController],
   providers: [HealthService],
 })
