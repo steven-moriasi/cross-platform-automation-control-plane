@@ -120,6 +120,74 @@ services:
       - "4100:4100"
     restart: unless-stopped
 
+  n8n-volume-init:
+    image: alpine:3.22.1
+    command: ["chown", "-R", "1000:1000", "/data"]
+    restart: "no"
+    volumes:
+      - n8n-data:/data
+
+  n8n-import:
+    build:
+      context: .
+      dockerfile: automations/n8n/Dockerfile
+    entrypoint: ["/bin/sh", "/workflows/import.sh"]
+    depends_on:
+      control-plane-api:
+        condition: service_healthy
+      n8n-volume-init:
+        condition: service_completed_successfully
+      synthetic-operations-api:
+        condition: service_healthy
+    environment:
+      N8N_CUSTOM_EXTENSIONS: /home/node/.n8n/custom
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-local-n8n-encryption-key-change-me}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_USER_FOLDER: /home/node/n8n-data
+      TELEMETRY_CLIENT_ID: ${TELEMETRY_CLIENT_ID:-local-automation-packages}
+      TELEMETRY_SIGNING_SECRET: ${TELEMETRY_SIGNING_SECRET:-local-telemetry-signing-secret-change-me}
+    restart: "no"
+    volumes:
+      - ./automations/n8n/claims-intake:/workflows:ro
+      - n8n-data:/home/node/n8n-data
+
+  n8n:
+    build:
+      context: .
+      dockerfile: automations/n8n/Dockerfile
+    depends_on:
+      n8n-import:
+        condition: service_completed_successfully
+    environment:
+      GENERIC_TIMEZONE: Africa/Nairobi
+      N8N_CUSTOM_EXTENSIONS: /home/node/.n8n/custom
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-local-n8n-encryption-key-change-me}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_HOST: localhost
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_PYTHON_ENABLED: "false"
+      N8N_SECURE_COOKIE: "false"
+      N8N_TEMPLATES_ENABLED: "false"
+      N8N_UNVERIFIED_PACKAGES_ENABLED: "true"
+      N8N_USER_FOLDER: /home/node/n8n-data
+      TELEMETRY_CLIENT_ID: ${TELEMETRY_CLIENT_ID:-local-automation-packages}
+      TELEMETRY_SIGNING_SECRET: ${TELEMETRY_SIGNING_SECRET:-local-telemetry-signing-secret-change-me}
+      TZ: Africa/Nairobi
+      N8N_WEBHOOK_URL: http://localhost:5678/
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5678/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    ports:
+      - "5678:5678"
+    restart: unless-stopped
+    volumes:
+      - n8n-data:/home/node/n8n-data
+
   web:
     build:
       context: .
@@ -149,4 +217,5 @@ services:
     restart: unless-stopped
 
 volumes:
+  n8n-data:
   postgres-data:
