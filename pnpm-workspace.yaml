@@ -2,7 +2,7 @@ packages:
   - "apps/*"
   - "services/*"
   - "packages/*"
-  - "automations/zapier"
+  - "automations/zapier/*"
   - "automations/n8n/nodes/*"
 
 allowBuilds:

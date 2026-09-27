@@ -5,7 +5,7 @@
   "displayName": "Partner onboarding integration",
   "platform": "zapier",
   "nativeArtifactPath": "automations/zapier/partner-onboarding/integration-definition.json",
-  "sourceChecksum": "b412920194226de2bcad1349bfdbe3b978181b27723d51ea3579ed5a3a3e0cac",
+  "sourceChecksum": "37d22a5e07577ebe0acf8c96ee5858f0d463e09c7319e8719aae0e209996061e",
   "owner": {
     "email": "automation.owner@example.test",
     "supportGroup": "Partner Operations"

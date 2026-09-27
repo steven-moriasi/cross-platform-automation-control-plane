@@ -1,0 +1,31 @@
+{
+  "name": "Synthetic partner onboarding",
+  "trigger": "new_partner_application",
+  "steps": [
+    {
+      "action": "verify_partner_documents",
+      "input": {
+        "requestId": "{{applicationId}}:verification",
+        "applicationId": "{{applicationId}}",
+        "documentReferences": ["partner-document-001"]
+      }
+    },
+    {
+      "action": "create_partner_case",
+      "input": {
+        "requestId": "{{applicationId}}:case",
+        "applicationId": "{{applicationId}}",
+        "caseId": "{{applicationId}}-case"
+      }
+    },
+    {
+      "action": "update_partner_status",
+      "input": {
+        "requestId": "{{applicationId}}:decision",
+        "caseId": "{{applicationId}}-case",
+        "status": "APPROVED"
+      }
+    }
+  ],
+  "hostedVerification": "Requires a Zapier developer account, deploy key, connection, and Zap."
+}

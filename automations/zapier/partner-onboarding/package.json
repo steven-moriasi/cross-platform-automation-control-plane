@@ -1,0 +1,32 @@
+{
+  "name": "synthetic-partner-onboarding-zapier",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zapier Platform CLI integration for the synthetic partner onboarding reference automation",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "zapier-platform build",
+    "lint": "eslint index.js src test",
+    "test": "jest --runInBand",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zapier-platform-core": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "29.5.14",
+    "@types/node-fetch": "2.6.13",
+    "jest": "29.7.0",
+    "nock": "14.0.10",
+    "typescript": "5.9.3",
+    "zapier-platform-cli": "19.1.0"
+  },
+  "engines": {
+    "node": ">=22.20.0 <23"
+  },
+  "zapier": {
+    "integrationId": null
+  }
+}

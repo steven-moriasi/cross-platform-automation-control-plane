@@ -1,0 +1,17 @@
+{
+  "data": [
+    {
+      "applicationId": "partner-application-001",
+      "organizationName": "Synthetic Logistics Limited",
+      "submittedAt": "2026-01-10T08:00:00.000Z",
+      "verificationStatus": "PENDING"
+    },
+    {
+      "applicationId": "partner-application-002",
+      "organizationName": "Demo Repair Network",
+      "submittedAt": "2026-01-11T08:00:00.000Z",
+      "verificationStatus": "PENDING"
+    }
+  ],
+  "nextCursor": "2"
+}

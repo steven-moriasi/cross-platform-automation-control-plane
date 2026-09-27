@@ -1,5 +1,5 @@
 {
-  "platformVersion": "18.0.0",
+  "platformVersion": "19.1.0",
   "title": "Synthetic Partner Onboarding",
   "authentication": {
     "type": "custom",
