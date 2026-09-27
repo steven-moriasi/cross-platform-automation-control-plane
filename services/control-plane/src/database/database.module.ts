@@ -22,6 +22,6 @@ import { DatabaseService } from "./database.service.js";
     },
     DatabaseService,
   ],
-  exports: [DatabaseService],
+  exports: [DATABASE_POOL, DatabaseService],
 })
 export class DatabaseModule {}
