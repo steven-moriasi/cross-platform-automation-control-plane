@@ -8,7 +8,7 @@ updates:
       time: "05:00"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     groups:
       production-dependencies:
         dependency-type: production
@@ -23,7 +23,7 @@ updates:
       time: "05:30"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 0
     groups:
       workflow-actions:
         patterns: ["*"]
@@ -36,7 +36,7 @@ updates:
       time: "06:00"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
 
   - package-ecosystem: docker
     directory: /
@@ -46,7 +46,7 @@ updates:
       time: "06:30"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 0
     groups:
       compose-images:
         patterns: ["*"]
@@ -59,7 +59,7 @@ updates:
       time: "06:30"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 0
 
   - package-ecosystem: docker
     directory: /services/control-plane
@@ -69,7 +69,7 @@ updates:
       time: "06:30"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 0
 
   - package-ecosystem: docker
     directory: /services/synthetic-operations-api
@@ -79,7 +79,7 @@ updates:
       time: "06:30"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 0
 
   - package-ecosystem: docker
     directory: /automations/n8n
@@ -89,4 +89,4 @@ updates:
       time: "06:30"
       timezone: Africa/Nairobi
     target-branch: main
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 0
