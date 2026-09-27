@@ -5,7 +5,7 @@
   "displayName": "Commerce return and refund orchestration",
   "platform": "make",
   "nativeArtifactPath": "automations/make/return-refund/blueprint.json",
-  "sourceChecksum": "b3678c406144578bb814bb95e9cd1c23d98b701b735c61d68f12293c86ccf2d1",
+  "sourceChecksum": "86951c5b0e2becb8e10f566eea46f65aaf56e6db4f89d7de3d3950b30af47245",
   "owner": {
     "email": "automation.owner@example.test",
     "supportGroup": "Commerce Operations"
@@ -39,8 +39,12 @@
   "recoveryPath": "docs/runbooks/return-refund-recovery.md",
   "credentialReferences": [
     {
-      "name": "SYNTHETIC_COMMERCE_API",
-      "purpose": "Call synthetic order, return, and refund resources"
+      "name": "SYNTHETIC_OPERATIONS_API",
+      "purpose": "Locate synthetic order, return, and refund resources"
+    },
+    {
+      "name": "SYNTHETIC_OPERATIONS_API_KEY",
+      "purpose": "Authenticate synthetic operations API requests"
     },
     {
       "name": "MAKE_CONNECTION",

@@ -2,6 +2,7 @@ packages:
   - "apps/*"
   - "services/*"
   - "packages/*"
+  - "automations/make/*"
   - "automations/zapier/*"
   - "automations/n8n/nodes/*"
 

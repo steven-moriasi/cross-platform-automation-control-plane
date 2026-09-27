@@ -1,0 +1,8 @@
+{
+  "approvalDecision": "",
+  "correlationId": "make-approval-001",
+  "failureMode": "",
+  "orderId": "order-high-value-001",
+  "reason": "DAMAGED",
+  "returnId": "return-make-approval-001"
+}

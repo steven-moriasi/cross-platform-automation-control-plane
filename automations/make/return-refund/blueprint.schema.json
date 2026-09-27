@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stevenmoriasi.com/schemas/make-blueprint.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "flow", "metadata"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 3
+    },
+    "flow": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "$ref": "#/$defs/module"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "connectionPlaceholders",
+        "hostedVerification",
+        "instant",
+        "scenarioId",
+        "version"
+      ],
+      "properties": {
+        "connectionPlaceholders": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]+$"
+          }
+        },
+        "hostedVerification": {
+          "const": "UNVERIFIED"
+        },
+        "instant": {
+          "type": "boolean"
+        },
+        "scenarioId": {
+          "const": "return-refund-make"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "module": {
+      "type": "object",
+      "required": ["id", "module", "version", "parameters", "metadata"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "module": {
+          "type": "string",
+          "minLength": 3
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "mapper": {},
+        "metadata": {
+          "type": "object"
+        },
+        "onerror": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/module"
+          }
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "filter", "flow"],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "filter": {
+                "type": "object"
+              },
+              "flow": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/module"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

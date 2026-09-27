@@ -1,0 +1,24 @@
+{
+  "name": "make-return-refund-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Validated Make blueprint for synthetic commerce return and refund orchestration",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "scripts": {
+    "build": "node scripts/validate-blueprint.js",
+    "lint": "eslint scripts test",
+    "test": "node --test",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "ajv": "8.17.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.9.2",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.20.0 <23"
+  }
+}

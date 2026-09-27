@@ -3,12 +3,18 @@
   "flow": [
     {
       "id": 1,
-      "module": "gateway:webhook",
+      "module": "gateway:CustomWebHook",
       "version": 1,
       "parameters": {
         "hook": "SYNTHETIC_RETURN_REQUEST"
       },
-      "mapper": {}
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      }
     },
     {
       "id": 2,
@@ -18,13 +24,391 @@
         "handleErrors": true
       },
       "mapper": {
-        "method": "get",
+        "headers": [
+          {
+            "name": "x-synthetic-api-key",
+            "value": "{{SYNTHETIC_OPERATIONS_API_KEY}}"
+          }
+        ],
+        "method": "GET",
+        "parseResponse": true,
         "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/orders/{{1.orderId}}"
-      }
+      },
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0
+        }
+      },
+      "onerror": [
+        {
+          "id": 201,
+          "module": "builtin:Break",
+          "version": 1,
+          "parameters": {},
+          "mapper": {
+            "count": "3",
+            "interval": "60"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "module": "http:ActionSendData",
+      "version": 3,
+      "parameters": {
+        "handleErrors": true
+      },
+      "mapper": {
+        "body": "{\"orderId\":\"{{1.orderId}}\",\"reason\":\"{{1.reason}}\",\"returnId\":\"{{1.returnId}}\"}",
+        "headers": [
+          {
+            "name": "content-type",
+            "value": "application/json"
+          },
+          {
+            "name": "x-idempotency-key",
+            "value": "make:{{1.returnId}}:return"
+          },
+          {
+            "name": "x-synthetic-api-key",
+            "value": "{{SYNTHETIC_OPERATIONS_API_KEY}}"
+          },
+          {
+            "name": "x-synthetic-failure",
+            "value": "{{1.failureMode}}"
+          }
+        ],
+        "method": "POST",
+        "parseResponse": true,
+        "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/returns"
+      },
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 0
+        }
+      },
+      "onerror": [
+        {
+          "id": 301,
+          "module": "http:ActionSendData",
+          "version": 3,
+          "parameters": {
+            "handleErrors": false
+          },
+          "mapper": {
+            "headers": [
+              {
+                "name": "x-synthetic-api-key",
+                "value": "{{SYNTHETIC_OPERATIONS_API_KEY}}"
+              }
+            ],
+            "method": "GET",
+            "parseResponse": true,
+            "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/returns/{{1.returnId}}"
+          },
+          "metadata": {}
+        },
+        {
+          "id": 302,
+          "module": "builtin:Resume",
+          "version": 1,
+          "parameters": {},
+          "mapper": {
+            "body": "{{301.body}}",
+            "status": "200"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "parameters": {},
+      "mapper": null,
+      "metadata": {
+        "designer": {
+          "x": 900,
+          "y": 0
+        }
+      },
+      "routes": [
+        {
+          "name": "Eligible or approved return",
+          "filter": {
+            "name": "Refund authorized",
+            "conditions": [
+              [
+                {
+                  "a": "{{3.body.value.status}}",
+                  "b": "ELIGIBLE",
+                  "o": "text:equal"
+                }
+              ],
+              [
+                {
+                  "a": "{{3.body.value.status}}",
+                  "b": "APPROVAL_REQUIRED",
+                  "o": "text:equal"
+                },
+                {
+                  "a": "{{1.approvalDecision}}",
+                  "b": "APPROVED",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 5,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "body": "{\"returnId\":\"{{1.returnId}}\",\"workId\":\"warehouse-{{1.returnId}}\"}",
+                "headers": [
+                  {
+                    "name": "content-type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "x-idempotency-key",
+                    "value": "make:{{1.returnId}}:warehouse"
+                  },
+                  {
+                    "name": "x-synthetic-api-key",
+                    "value": "{{SYNTHETIC_OPERATIONS_API_KEY}}"
+                  }
+                ],
+                "method": "POST",
+                "parseResponse": true,
+                "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/warehouse/work"
+              },
+              "metadata": {},
+              "onerror": [
+                {
+                  "id": 501,
+                  "module": "builtin:Break",
+                  "version": 1,
+                  "parameters": {},
+                  "mapper": {
+                    "count": "3",
+                    "interval": "60"
+                  },
+                  "metadata": {}
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "body": "{\"amount\":{{3.body.value.refundAmount}},\"refundId\":\"refund-{{1.returnId}}\",\"returnId\":\"{{1.returnId}}\"}",
+                "headers": [
+                  {
+                    "name": "content-type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "x-idempotency-key",
+                    "value": "make:{{1.returnId}}:refund"
+                  },
+                  {
+                    "name": "x-synthetic-api-key",
+                    "value": "{{SYNTHETIC_OPERATIONS_API_KEY}}"
+                  },
+                  {
+                    "name": "x-synthetic-failure",
+                    "value": "{{1.failureMode}}"
+                  }
+                ],
+                "method": "POST",
+                "parseResponse": true,
+                "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/refunds"
+              },
+              "metadata": {},
+              "onerror": [
+                {
+                  "id": 601,
+                  "module": "http:ActionSendData",
+                  "version": 3,
+                  "parameters": {
+                    "handleErrors": false
+                  },
+                  "mapper": {
+                    "headers": [
+                      {
+                        "name": "x-synthetic-api-key",
+                        "value": "{{SYNTHETIC_OPERATIONS_API_KEY}}"
+                      }
+                    ],
+                    "method": "GET",
+                    "parseResponse": true,
+                    "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/refunds/refund-{{1.returnId}}"
+                  },
+                  "metadata": {}
+                },
+                {
+                  "id": 602,
+                  "module": "builtin:Resume",
+                  "version": 1,
+                  "parameters": {},
+                  "mapper": {
+                    "body": "{{601.body}}",
+                    "status": "200"
+                  },
+                  "metadata": {}
+                }
+              ]
+            },
+            {
+              "id": 7,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": {
+                "handleErrors": true
+              },
+              "mapper": {
+                "headers": [
+                  {
+                    "name": "x-synthetic-api-key",
+                    "value": "{{SYNTHETIC_OPERATIONS_API_KEY}}"
+                  }
+                ],
+                "method": "GET",
+                "parseResponse": true,
+                "url": "{{SYNTHETIC_OPERATIONS_API}}/api/v1/refunds/refund-{{1.returnId}}"
+              },
+              "metadata": {},
+              "onerror": [
+                {
+                  "id": 701,
+                  "module": "builtin:Break",
+                  "version": 1,
+                  "parameters": {},
+                  "mapper": {
+                    "count": "3",
+                    "interval": "60"
+                  },
+                  "metadata": {}
+                }
+              ]
+            },
+            {
+              "id": 8,
+              "module": "gateway:WebhookRespond",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "body": "{\"correlationId\":\"{{1.correlationId}}\",\"refundId\":\"refund-{{1.returnId}}\",\"status\":\"{{7.body.status}}\"}",
+                "headers": [
+                  {
+                    "key": "content-type",
+                    "value": "application/json"
+                  }
+                ],
+                "status": "200"
+              },
+              "metadata": {}
+            }
+          ]
+        },
+        {
+          "name": "Approval required",
+          "filter": {
+            "name": "Await human approval",
+            "conditions": [
+              [
+                {
+                  "a": "{{3.body.value.status}}",
+                  "b": "APPROVAL_REQUIRED",
+                  "o": "text:equal"
+                },
+                {
+                  "a": "{{1.approvalDecision}}",
+                  "b": "APPROVED",
+                  "o": "text:notequal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 9,
+              "module": "gateway:WebhookRespond",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "body": "{\"correlationId\":\"{{1.correlationId}}\",\"returnId\":\"{{1.returnId}}\",\"status\":\"APPROVAL_REQUIRED\"}",
+                "headers": [
+                  {
+                    "key": "content-type",
+                    "value": "application/json"
+                  }
+                ],
+                "status": "202"
+              },
+              "metadata": {}
+            }
+          ]
+        },
+        {
+          "name": "Rejected return",
+          "filter": {
+            "name": "Return not eligible",
+            "conditions": [
+              [
+                {
+                  "a": "{{3.body.value.status}}",
+                  "b": "REJECTED",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          },
+          "flow": [
+            {
+              "id": 10,
+              "module": "gateway:WebhookRespond",
+              "version": 1,
+              "parameters": {},
+              "mapper": {
+                "body": "{\"correlationId\":\"{{1.correlationId}}\",\"returnId\":\"{{1.returnId}}\",\"status\":\"REJECTED\"}",
+                "headers": [
+                  {
+                    "key": "content-type",
+                    "value": "application/json"
+                  }
+                ],
+                "status": "422"
+              },
+              "metadata": {}
+            }
+          ]
+        }
+      ]
     }
   ],
   "metadata": {
+    "connectionPlaceholders": [
+      "SYNTHETIC_OPERATIONS_API",
+      "SYNTHETIC_OPERATIONS_API_KEY"
+    ],
+    "hostedVerification": "UNVERIFIED",
     "instant": true,
+    "scenarioId": "return-refund-make",
     "version": 1
   }
 }
