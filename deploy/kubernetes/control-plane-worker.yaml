@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: control-plane-worker
+  labels:
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/name: control-plane
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: worker
+      app.kubernetes.io/name: control-plane
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/name: control-plane
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: control-plane
+      terminationGracePeriodSeconds: 35
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: worker
+              app.kubernetes.io/name: control-plane
+      containers:
+        - name: worker
+          image: ghcr.io/steven-moriasi/automation-control-plane-api:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: ["node", "dist/worker.js"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: control-plane-runtime
+                  key: database-url
+          envFrom:
+            - configMapRef:
+                name: control-plane-configuration
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: temporary-files
+              mountPath: /tmp
+      volumes:
+        - name: temporary-files
+          emptyDir:
+            sizeLimit: 64Mi

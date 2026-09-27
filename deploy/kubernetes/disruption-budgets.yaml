@@ -1,0 +1,43 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: control-plane-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: api
+      app.kubernetes.io/name: control-plane
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: control-plane-worker
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: worker
+      app.kubernetes.io/name: control-plane
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: control-plane-web
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: web
+      app.kubernetes.io/name: control-plane
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: synthetic-operations-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: synthetic-api
+      app.kubernetes.io/name: synthetic-operations-api

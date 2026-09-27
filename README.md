@@ -98,3 +98,7 @@ rules, and the telemetry data boundary. See
 [Recovery verification](docs/recovery-verification.md) and the
 [security threat model](docs/security-threat-model.md) for executable failure
 drills, backup validation, and trust boundaries.
+
+The production-oriented targets under `deploy/kubernetes/` and
+`infrastructure/terraform/aws/` demonstrate hardened workload packaging and
+managed dependency boundaries without claiming a live cloud deployment.

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: control-plane-configuration
+data:
+  CATALOG_REPOSITORY_ROOT: /app
+  CONTROL_PLANE_INTERNAL_URL: http://control-plane-api:4000
+  NODE_ENV: production
+  OIDC_AUDIENCE: control-plane-api
+  OIDC_CLIENT_ID: automation-control-plane-web
+  OIDC_INTERNAL_BASE_URL: https://identity.example.com
+  OIDC_ISSUER: https://identity.example.com/realms/automation-control-plane
+  OIDC_JWKS_URL: https://identity.example.com/realms/automation-control-plane/protocol/openid-connect/certs
+  OIDC_PUBLIC_ISSUER: https://identity.example.com/realms/automation-control-plane
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector.monitoring.svc.cluster.local:4318
+  SERVICE_VERSION: 0.1.0
+  TELEMETRY_CLIENT_ID: automation-platforms
+  WEB_BASE_URL: https://automation.example.com
+  WEB_ORIGIN: https://automation.example.com

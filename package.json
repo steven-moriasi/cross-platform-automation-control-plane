@@ -17,6 +17,7 @@
     "dev": "turbo run dev --parallel",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "infrastructure:validate": "bash scripts/validate-infrastructure.sh",
     "lint": "turbo run lint",
     "manifests:validate": "tsx scripts/validate-manifests.ts",
     "recovery:migrations": "bash scripts/operations/verify-migrations.sh",

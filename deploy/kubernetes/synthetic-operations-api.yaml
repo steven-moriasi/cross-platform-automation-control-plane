@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synthetic-operations-api
+  labels:
+    app.kubernetes.io/component: synthetic-api
+    app.kubernetes.io/name: synthetic-operations-api
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: synthetic-api
+      app.kubernetes.io/name: synthetic-operations-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: synthetic-api
+        app.kubernetes.io/name: synthetic-operations-api
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: control-plane
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: synthetic-api
+              app.kubernetes.io/name: synthetic-operations-api
+      containers:
+        - name: api
+          image: ghcr.io/steven-moriasi/automation-control-plane-synthetic-api:0.1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SYNTHETIC_CALLBACK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: control-plane-runtime
+                  key: synthetic-callback-secret
+          envFrom:
+            - configMapRef:
+                name: control-plane-configuration
+          ports:
+            - name: http
+              containerPort: 4100
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 160Mi
+            limits:
+              cpu: 750m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: temporary-files
+              mountPath: /tmp
+      volumes:
+        - name: temporary-files
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: synthetic-operations-api
+  labels:
+    app.kubernetes.io/component: synthetic-api
+    app.kubernetes.io/name: synthetic-operations-api
+spec:
+  selector:
+    app.kubernetes.io/component: synthetic-api
+    app.kubernetes.io/name: synthetic-operations-api
+  ports:
+    - name: http
+      port: 4100
+      targetPort: http

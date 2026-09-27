@@ -1,0 +1,76 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: control-plane-web
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 1m
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - automation.example.com
+      secretName: automation-control-plane-tls
+  rules:
+    - host: automation.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: control-plane-web
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: control-plane-telemetry
+  annotations:
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+    nginx.ingress.kubernetes.io/proxy-body-size: 512k
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - telemetry.automation.example.com
+      secretName: automation-control-plane-telemetry-tls
+  rules:
+    - host: telemetry.automation.example.com
+      http:
+        paths:
+          - path: /api/v1/telemetry
+            pathType: Prefix
+            backend:
+              service:
+                name: control-plane-api
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: synthetic-operations-api
+  annotations:
+    nginx.ingress.kubernetes.io/limit-rps: "30"
+    nginx.ingress.kubernetes.io/proxy-body-size: 512k
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - synthetic.automation.example.com
+      secretName: automation-control-plane-synthetic-tls
+  rules:
+    - host: synthetic.automation.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: synthetic-operations-api
+                port:
+                  name: http

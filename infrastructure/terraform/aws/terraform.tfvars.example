@@ -1,0 +1,5 @@
+aws_region                 = "af-south-1"
+environment                = "staging"
+vpc_id                     = "vpc-00000000000000000"
+database_subnet_ids        = ["subnet-00000000000000001", "subnet-00000000000000002"]
+database_client_cidr_blocks = ["10.0.0.0/16"]

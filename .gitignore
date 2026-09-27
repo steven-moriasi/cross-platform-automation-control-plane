@@ -10,6 +10,11 @@ node_modules/
 *.log
 *.tsbuildinfo
 
+# Terraform local state and providers
+**/.terraform/
+*.tfstate
+*.tfstate.*
+
 # Local runtime state
 .data/
 evidence/
