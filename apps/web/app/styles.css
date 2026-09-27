@@ -145,6 +145,7 @@ a {
 
 .brand {
   align-items: center;
+  color: inherit;
   display: flex;
   gap: 12px;
   margin: 0 8px 42px;
@@ -482,6 +483,20 @@ h3 {
   padding: 16px 9px;
 }
 
+.automation-row--link {
+  text-decoration: none;
+  transition:
+    background 120ms ease,
+    transform 120ms ease;
+}
+
+.automation-row--link:hover,
+.automation-row--link:focus-visible {
+  background: #f5f8f6;
+  outline: none;
+  transform: translateX(2px);
+}
+
 .automation-row:last-child {
   border-bottom: 0;
   padding-bottom: 4px;
@@ -507,6 +522,13 @@ h3 {
 .automation-name small {
   color: var(--muted);
   font-size: 11px;
+}
+
+.table-detail {
+  color: var(--muted);
+  display: block;
+  font-size: 10px;
+  margin-top: 4px;
 }
 
 .platform-mark {
@@ -645,6 +667,12 @@ h3 {
   outline: none;
 }
 
+.release-item button:disabled {
+  border-color: #dfe4e1;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .access-note {
   color: var(--muted);
   font-size: 11px;
@@ -695,6 +723,178 @@ h3 {
   font-weight: 750;
 }
 
+.detail-heading {
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto 20px;
+  max-width: 1280px;
+}
+
+.detail-heading__identity {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.detail-heading__identity p {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 0 0 6px;
+}
+
+.notice--warning {
+  background: var(--warning-soft);
+  border-color: #eedebd;
+  color: var(--warning);
+}
+
+.detail-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 18px auto 0;
+  max-width: 1280px;
+}
+
+.detail-grid .panel {
+  margin: 0;
+}
+
+.detail-panel {
+  margin-top: 18px;
+}
+
+.metadata-grid,
+.checksum-list {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.metadata-grid div,
+.checksum-list div {
+  border-top: 1px solid #edf0ec;
+  padding-top: 12px;
+}
+
+.metadata-grid dt,
+.checksum-list dt {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.metadata-grid dd,
+.checksum-list dd {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.path-value,
+.checksum-list dd {
+  overflow-wrap: anywhere;
+}
+
+.definition-list,
+.audit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.definition-list li {
+  border-top: 1px solid #edf0ec;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 1fr auto;
+  padding: 12px 0;
+}
+
+.definition-list li:first-child {
+  padding-top: 0;
+}
+
+.definition-list strong,
+.definition-list span {
+  font-size: 11px;
+}
+
+.definition-list span {
+  color: var(--teal);
+  font-weight: 800;
+}
+
+.definition-list small {
+  color: var(--muted);
+  grid-column: 1 / -1;
+  line-height: 1.5;
+}
+
+.empty-state {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+.target-list {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.target-list div {
+  background: #f5f8f6;
+  border: 1px solid #e4e9e6;
+  border-radius: 9px;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.target-list strong,
+.target-list span {
+  font-size: 11px;
+}
+
+.target-list span {
+  color: var(--muted);
+}
+
+.audit-list li {
+  align-items: flex-start;
+  border-top: 1px solid #edf0ec;
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+}
+
+.audit-list li:first-child {
+  padding-top: 0;
+}
+
+.audit-list div,
+.audit-list strong,
+.audit-list small {
+  display: block;
+}
+
+.audit-list strong {
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.audit-list small {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 3px;
+}
+
 @media (max-width: 1080px) {
   .metrics {
     grid-template-columns: repeat(2, 1fr);
@@ -709,6 +909,10 @@ h3 {
   }
 
   .lower-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -759,6 +963,18 @@ h3 {
 
   .automation-row {
     align-items: start;
+    grid-template-columns: 1fr;
+  }
+
+  .detail-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .metadata-grid,
+  .checksum-list,
+  .target-list {
     grid-template-columns: 1fr;
   }
 }

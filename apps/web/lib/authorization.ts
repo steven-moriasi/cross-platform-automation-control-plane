@@ -29,3 +29,9 @@ export function navigationForPrincipal(
 export function canApproveReleases(principal: AuthenticatedPrincipal): boolean {
   return hasRequiredRole(principal, ["RELEASE_APPROVER"]);
 }
+
+export function canViewCatalogAudit(
+  principal: AuthenticatedPrincipal,
+): boolean {
+  return hasRequiredRole(principal, ["AUDITOR", "AUTOMATION_OWNER"]);
+}

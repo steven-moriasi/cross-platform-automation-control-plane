@@ -1,263 +1,234 @@
-import { MetricCard } from "../components/metric-card";
-import { PlatformMark } from "../components/platform-mark";
+import { requireSession } from "../lib/auth/session";
 import {
   canApproveReleases,
   navigationForPrincipal,
 } from "../lib/authorization";
-import { requireSession } from "../lib/auth/session";
-import { getVerifiedPrincipal } from "../lib/control-plane";
 import {
-  automationPortfolio,
-  countHealthy,
-  countHostedPending,
+  getAutomationCatalog,
+  getVerifiedPrincipal,
+} from "../lib/control-plane";
+import {
+  countHighRisk,
+  countMatchingChecksums,
   formatPlatform,
 } from "../lib/portfolio";
+import { ApplicationShell } from "../components/application-shell";
+import { PlatformMark } from "../components/platform-mark";
 
-function formatRole(role: string | undefined): string {
-  return (role ?? "VIEWER")
-    .toLowerCase()
-    .split("_")
-    .map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`)
-    .join(" ");
+const pendingReleases = [
+  {
+    automation: "Claims Intake & Triage",
+    environment: "production",
+    submitted: "Synthetic request · 14 minutes ago",
+    version: "2.4.1",
+  },
+  {
+    automation: "Commerce Returns",
+    environment: "staging",
+    submitted: "Synthetic request · 1 hour ago",
+    version: "1.9.0",
+  },
+] as const;
+
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
 }
 
-function initials(displayName: string): string {
-  return displayName
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
+function formatDuration(seconds: number): string {
+  return seconds < 60 ? `${seconds}s` : `${Math.round(seconds / 60)} min`;
 }
 
-export default async function OverviewPage(): Promise<React.JSX.Element> {
+export default async function HomePage(): Promise<React.JSX.Element> {
   const session = await requireSession();
-  const principal = await getVerifiedPrincipal(session.accessToken);
+  const [principal, catalog] = await Promise.all([
+    getVerifiedPrincipal(session.accessToken),
+    getAutomationCatalog(session.accessToken),
+  ]);
   const navigation = navigationForPrincipal(principal);
-  const mayApproveReleases = canApproveReleases(principal);
-  const healthyCount = countHealthy(automationPortfolio);
-  const hostedPendingCount = countHostedPending(automationPortfolio);
+  const canApprove = canApproveReleases(principal);
+  const matchingChecksums = countMatchingChecksums(catalog);
+  const highRisk = countHighRisk(catalog);
 
   return (
-    <main className="application">
-      <aside className="sidebar">
-        <a
-          className="brand"
-          href="#overview"
-          aria-label="Automation Control Plane home"
-        >
-          <span className="brand__mark">A</span>
-          <span>
-            <strong>Automation</strong>
-            <small>Control Plane</small>
-          </span>
-        </a>
-        <nav aria-label="Primary navigation">
-          <ul className="navigation">
-            {navigation.map((item, index) => (
-              <li key={item}>
-                <a
-                  className={
-                    index === 0
-                      ? "navigation__link is-active"
-                      : "navigation__link"
-                  }
-                  href={`#${item.toLowerCase()}`}
-                >
-                  <span className="navigation__icon" aria-hidden>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  {item}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="sidebar__footer">
-          <span className="environment-dot" aria-hidden />
-          <span>
-            <strong>Demo environment</strong>
-            <small>Synthetic data only</small>
-          </span>
-        </div>
-      </aside>
+    <ApplicationShell
+      activeNavigation="Overview"
+      eyebrow="Operations workspace"
+      navigation={navigation}
+      principal={principal}
+      title="Portfolio overview"
+    >
+      <section className="notice" aria-label="Data scope notice">
+        <span className="notice__icon" aria-hidden>
+          i
+        </span>
+        <p>
+          This reference environment uses synthetic automation definitions. No
+          customer records or vendor credentials are stored.
+        </p>
+      </section>
 
-      <section className="workspace" id="overview">
-        <header className="topbar">
+      <section className="metrics" aria-label="Portfolio metrics">
+        <article className="metric">
+          <p className="metric__label">Registered automations</p>
+          <p className="metric__value">{catalog.length}</p>
+          <p className="metric__detail">Governed across four platforms</p>
+        </article>
+        <article className="metric metric--success">
+          <p className="metric__label">Checksum verified</p>
+          <p className="metric__value">{matchingChecksums}</p>
+          <p className="metric__detail">Native source matches its manifest</p>
+        </article>
+        <article className="metric">
+          <p className="metric__label">High-risk workflows</p>
+          <p className="metric__value">{highRisk}</p>
+          <p className="metric__detail">High or critical governance tier</p>
+        </article>
+        <article className="metric metric--alert">
+          <p className="metric__label">Pending releases</p>
+          <p className="metric__value">{pendingReleases.length}</p>
+          <p className="metric__detail">Synthetic approvals awaiting action</p>
+        </article>
+      </section>
+
+      <section className="panel" aria-labelledby="portfolio-heading">
+        <div className="panel__heading">
           <div>
-            <p className="eyebrow">Operations portfolio</p>
-            <h1>Good morning, {principal.displayName.split(" ")[0]}.</h1>
+            <p className="eyebrow">Governed inventory</p>
+            <h2 id="portfolio-heading">Automation catalog</h2>
           </div>
-          <div className="identity">
-            <span className="identity__avatar" aria-hidden>
-              {initials(principal.displayName)}
-            </span>
-            <span>
-              <strong>{principal.displayName}</strong>
-              <small>{formatRole(principal.roles[0])}</small>
-            </span>
-            <form action="/api/auth/logout" method="post">
-              <button className="identity__logout" type="submit">
-                Sign out
-              </button>
-            </form>
-          </div>
-        </header>
-
-        <div className="notice" role="status">
-          <span className="notice__icon" aria-hidden>
-            i
-          </span>
-          <p>
-            This reference environment uses synthetic records. Hosted execution
-            evidence remains pending until each vendor account is connected.
-          </p>
+          <span className="text-link">{catalog.length} records</span>
         </div>
 
-        <section className="metrics" aria-label="Portfolio metrics">
-          <MetricCard
-            label="Registered automations"
-            value={String(automationPortfolio.length)}
-            detail="Across four platform packages"
-          />
-          <MetricCard
-            label="Healthy"
-            value={`${healthyCount}/${automationPortfolio.length}`}
-            detail="Based on current evidence"
-            tone="success"
-          />
-          <MetricCard
-            label="Hosted verification"
-            value={String(hostedPendingCount)}
-            detail="Packages awaiting account-backed proof"
-          />
-          <MetricCard
-            label="Open incidents"
-            value="1"
-            detail="One synthetic recovery exercise"
-            tone="alert"
-          />
-        </section>
+        <div className="automation-table" role="table">
+          <div className="automation-table__header" role="row">
+            <span>Automation</span>
+            <span>Governance</span>
+            <span>Expected SLA</span>
+            <span>Checksum</span>
+          </div>
+          {catalog.map((automation) => (
+            <a
+              className="automation-row automation-row--link"
+              href={`/automations/${automation.id}`}
+              key={automation.id}
+              role="row"
+            >
+              <span className="automation-name">
+                <PlatformMark platform={automation.platform} />
+                <span>
+                  <strong>{automation.displayName}</strong>
+                  <small>
+                    {formatPlatform(automation.platform)} ·{" "}
+                    {automation.owner.supportGroup}
+                  </small>
+                </span>
+              </span>
+              <span>
+                <strong>{automation.riskTier}</strong>
+                <small className="table-detail">
+                  {automation.dataClassification}
+                </small>
+              </span>
+              <span>
+                <strong>
+                  {formatDuration(automation.trigger.expectedSlaSeconds)}
+                </strong>
+                <small className="table-detail">
+                  Alert at{" "}
+                  {formatDuration(automation.trigger.alertAfterSeconds)}
+                </small>
+              </span>
+              <span
+                className={`status ${
+                  automation.checksumStatus === "MATCH"
+                    ? "status--healthy"
+                    : "status--degraded"
+                }`}
+              >
+                {automation.checksumStatus.toLowerCase()}
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
 
-        <section className="panel" id="automations">
+      <section className="lower-grid" aria-label="Operational queues">
+        <article className="panel">
           <div className="panel__heading">
             <div>
-              <p className="eyebrow">Governed inventory</p>
-              <h2>Automation health</h2>
+              <p className="eyebrow">Change control</p>
+              <h2>Release approval queue</h2>
             </div>
-            <a className="text-link" href="#releases">
-              Review release gates <span aria-hidden>→</span>
-            </a>
+            <span className="counter">{pendingReleases.length}</span>
           </div>
-
-          <div
-            className="automation-table"
-            role="table"
-            aria-label="Automation health"
-          >
-            <div className="automation-table__header" role="row">
-              <span role="columnheader">Automation</span>
-              <span role="columnheader">Owner</span>
-              <span role="columnheader">Evidence</span>
-              <span role="columnheader">Health</span>
-            </div>
-            {automationPortfolio.map((automation) => (
-              <article
-                className="automation-row"
-                role="row"
-                key={automation.id}
-              >
-                <div className="automation-name" role="cell">
-                  <PlatformMark platform={automation.platform} />
-                  <span>
-                    <strong>{automation.name}</strong>
-                    <small>
-                      {formatPlatform(automation.platform)} ·{" "}
-                      {automation.lastExecution}
-                    </small>
-                  </span>
+          <div>
+            {pendingReleases.map((release) => (
+              <article className="release-item" key={release.automation}>
+                <span className="release-item__risk">Review</span>
+                <div>
+                  <strong>{release.automation}</strong>
+                  <p>
+                    v{release.version} · {release.environment}
+                  </p>
+                  <p>{release.submitted}</p>
                 </div>
-                <span role="cell">{automation.owner}</span>
-                <span role="cell">
-                  {automation.evidence === "locally-verified"
-                    ? "Locally verified"
-                    : "Hosted pending"}
-                </span>
-                <span role="cell">
-                  <span className={`status status--${automation.health}`}>
-                    {automation.health}
-                  </span>
-                </span>
+                <button type="button" disabled={!canApprove}>
+                  {canApprove ? "Review" : "Approval role required"}
+                </button>
               </article>
             ))}
           </div>
-        </section>
+        </article>
 
-        <section className="lower-grid">
-          <article className="panel" id="releases">
-            <div className="panel__heading">
+        <article className="panel">
+          <div className="panel__heading">
+            <div>
+              <p className="eyebrow">Evidence freshness</p>
+              <h2>Catalog synchronization</h2>
+            </div>
+            <span
+              className={`status ${
+                matchingChecksums === catalog.length
+                  ? "status--healthy"
+                  : "status--degraded"
+              }`}
+            >
+              {matchingChecksums === catalog.length
+                ? "Verified"
+                : "Drift found"}
+            </span>
+          </div>
+          <div className="incident">
+            <p className="incident__description">
+              Native automation artifacts are hashed at API startup and compared
+              with their governed manifest checksums.
+            </p>
+            <dl className="incident__facts">
               <div>
-                <p className="eyebrow">Release governance</p>
-                <h2>Approval queue</h2>
+                <dt>Latest sync</dt>
+                <dd>
+                  {catalog[0]
+                    ? formatDate(catalog[0].synchronizedAt)
+                    : "Unavailable"}
+                </dd>
               </div>
-              <span className="counter">2</span>
-            </div>
-            <div className="release-item">
-              <span className="release-item__risk">High</span>
               <div>
-                <strong>Claims intake · 1.3.0</strong>
-                <p>Checksum changed after dependency update</p>
+                <dt>Verified</dt>
+                <dd>
+                  {matchingChecksums} of {catalog.length}
+                </dd>
               </div>
-              {mayApproveReleases ? (
-                <button type="button">Review</button>
-              ) : (
-                <span className="access-note">View only</span>
-              )}
-            </div>
-            <div className="release-item">
-              <span className="release-item__risk release-item__risk--medium">
-                Medium
-              </span>
               <div>
-                <strong>Partner onboarding · 0.4.0</strong>
-                <p>Local contract evidence is complete</p>
+                <dt>Control</dt>
+                <dd>SHA-256 source integrity</dd>
               </div>
-              {mayApproveReleases ? (
-                <button type="button">Review</button>
-              ) : (
-                <span className="access-note">View only</span>
-              )}
-            </div>
-          </article>
-
-          <article className="panel" id="incidents">
-            <div className="panel__heading">
-              <div>
-                <p className="eyebrow">Operations</p>
-                <h2>Active incident</h2>
-              </div>
-              <span className="status status--degraded">investigating</span>
-            </div>
-            <div className="incident">
-              <span className="incident__severity">SEV-3</span>
-              <h3>Refund reconciliation delayed</h3>
-              <p>
-                The synthetic commerce dependency timed out twice. No duplicate
-                refund was issued; reconciliation remains safe to retry.
-              </p>
-              <dl>
-                <div>
-                  <dt>Owner</dt>
-                  <dd>Commerce Operations</dd>
-                </div>
-                <div>
-                  <dt>Opened</dt>
-                  <dd>18 minutes ago</dd>
-                </div>
-              </dl>
-            </div>
-          </article>
-        </section>
+            </dl>
+          </div>
+        </article>
       </section>
-    </main>
+    </ApplicationShell>
   );
 }

@@ -1,7 +1,11 @@
 import type { AuthenticatedPrincipal } from "@automation-control-plane/contracts";
 import { describe, expect, it } from "vitest";
 
-import { canApproveReleases, navigationForPrincipal } from "./authorization";
+import {
+  canApproveReleases,
+  canViewCatalogAudit,
+  navigationForPrincipal,
+} from "./authorization";
 
 function principal(
   roles: AuthenticatedPrincipal["roles"],
@@ -18,6 +22,7 @@ describe("operations shell authorization", () => {
     const administrator = principal(["PLATFORM_ADMIN"]);
     expect(navigationForPrincipal(administrator)).toContain("Audit");
     expect(canApproveReleases(administrator)).toBe(true);
+    expect(canViewCatalogAudit(administrator)).toBe(true);
   });
 
   it("keeps approval controls and restricted navigation from viewers", () => {
@@ -25,5 +30,6 @@ describe("operations shell authorization", () => {
     expect(navigationForPrincipal(viewer)).not.toContain("Audit");
     expect(navigationForPrincipal(viewer)).toContain("Incidents");
     expect(canApproveReleases(viewer)).toBe(false);
+    expect(canViewCatalogAudit(viewer)).toBe(false);
   });
 });
