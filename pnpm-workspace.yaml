@@ -9,6 +9,7 @@ packages:
 
 allowBuilds:
   esbuild: true
+  protobufjs: set this to true or false
 
 catalogMode: strict
 

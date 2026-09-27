@@ -7,6 +7,8 @@ import { CommerceController } from "./commerce.controller.js";
 import { FieldInspectionsController } from "./field-inspections.controller.js";
 import { IdempotencyService } from "./idempotency.service.js";
 import { PartnersController } from "./partners.controller.js";
+import { MetricsController } from "./metrics.controller.js";
+import { MetricsService } from "./metrics.service.js";
 import { SyntheticStore } from "./synthetic-store.js";
 
 @Module({
@@ -16,9 +18,10 @@ import { SyntheticStore } from "./synthetic-store.js";
     ClaimsController,
     CommerceController,
     FieldInspectionsController,
+    MetricsController,
     PartnersController,
   ],
-  providers: [IdempotencyService, SyntheticStore],
+  providers: [IdempotencyService, MetricsService, SyntheticStore],
   exports: [IdempotencyService, SyntheticStore],
 })
 export class AppModule {}

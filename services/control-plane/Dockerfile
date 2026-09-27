@@ -6,12 +6,15 @@ WORKDIR /workspace
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages/contracts/package.json packages/contracts/package.json
+COPY packages/observability/package.json packages/observability/package.json
 COPY services/control-plane/package.json services/control-plane/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY packages/contracts packages/contracts
+COPY packages/observability packages/observability
 COPY services/control-plane services/control-plane
 RUN pnpm --filter @automation-control-plane/contracts build \
+    && pnpm --filter @automation-control-plane/observability build \
     && pnpm --filter @automation-control-plane/control-plane build \
     && pnpm --filter @automation-control-plane/control-plane deploy --prod /out
 
