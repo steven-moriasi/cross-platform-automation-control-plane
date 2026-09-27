@@ -1,0 +1,226 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Synthetic Field Inspection Operations",
+    "description": "Synthetic field inspection submission, reconciliation, and approval operations.",
+    "version": "1.0.0"
+  },
+  "host": "synthetic-operations-api.example.test",
+  "basePath": "/api/v1",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "paths": {
+    "/field-inspections": {
+      "post": {
+        "operationId": "CreateFieldInspection",
+        "summary": "Submit a field inspection",
+        "description": "Creates a replay-safe synthetic inspection record.",
+        "x-ms-summary": "Submit field inspection",
+        "parameters": [
+          {
+            "name": "x-idempotency-key",
+            "in": "header",
+            "description": "Stable operation identifier used for replay safety.",
+            "required": true,
+            "type": "string",
+            "x-ms-summary": "Idempotency key",
+            "x-ms-visibility": "important"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FieldInspectionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Inspection created",
+            "schema": {
+              "$ref": "#/definitions/IdempotentInspectionResult"
+            }
+          },
+          "409": {
+            "description": "Inspection already exists"
+          },
+          "504": {
+            "description": "Outcome is uncertain and must be reconciled"
+          }
+        }
+      }
+    },
+    "/field-inspections/{inspectionId}": {
+      "get": {
+        "operationId": "GetFieldInspection",
+        "summary": "Get a field inspection",
+        "description": "Reconciles the current synthetic inspection state.",
+        "x-ms-summary": "Get field inspection",
+        "parameters": [
+          {
+            "name": "inspectionId",
+            "in": "path",
+            "description": "Synthetic inspection identifier.",
+            "required": true,
+            "type": "string",
+            "x-ms-summary": "Inspection ID",
+            "x-ms-visibility": "important"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inspection state",
+            "schema": {
+              "$ref": "#/definitions/FieldInspection"
+            }
+          },
+          "404": {
+            "description": "Inspection was not found"
+          }
+        }
+      }
+    },
+    "/field-inspections/{inspectionId}/decision": {
+      "post": {
+        "operationId": "DecideFieldInspection",
+        "summary": "Record an approval decision",
+        "description": "Records an idempotent approval or rejection for a pending inspection.",
+        "x-ms-summary": "Decide field inspection",
+        "parameters": [
+          {
+            "name": "inspectionId",
+            "in": "path",
+            "description": "Synthetic inspection identifier.",
+            "required": true,
+            "type": "string",
+            "x-ms-summary": "Inspection ID",
+            "x-ms-visibility": "important"
+          },
+          {
+            "name": "x-idempotency-key",
+            "in": "header",
+            "description": "Stable approval operation identifier.",
+            "required": true,
+            "type": "string",
+            "x-ms-summary": "Idempotency key",
+            "x-ms-visibility": "important"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InspectionDecision"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decision recorded",
+            "schema": {
+              "$ref": "#/definitions/IdempotentInspectionResult"
+            }
+          },
+          "404": {
+            "description": "Inspection was not found"
+          },
+          "409": {
+            "description": "Inspection was already decided"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FieldInspectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inspectionId",
+        "locationReference",
+        "outcome",
+        "submittedBy"
+      ],
+      "properties": {
+        "inspectionId": {
+          "type": "string"
+        },
+        "locationReference": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["PASS", "REQUIRES_REMEDIATION"]
+        },
+        "submittedBy": {
+          "type": "string"
+        }
+      }
+    },
+    "InspectionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "rationale"],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["APPROVE", "REJECT"]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 1000
+        }
+      }
+    },
+    "FieldInspection": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/FieldInspectionRequest"
+        },
+        {
+          "type": "object",
+          "required": ["approvalStatus", "createdAt"],
+          "properties": {
+            "approvalStatus": {
+              "type": "string",
+              "enum": ["APPROVED", "PENDING", "REJECTED"]
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    },
+    "IdempotentInspectionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["replayed", "value"],
+      "properties": {
+        "replayed": {
+          "type": "boolean"
+        },
+        "value": {
+          "$ref": "#/definitions/FieldInspection"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "name": "x-synthetic-api-key",
+      "in": "header"
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "automationId": "field-inspection-power-platform",
+  "trigger": {
+    "operationId": "CreateFieldInspection",
+    "approvalRequiredWhen": {
+      "outcome": "REQUIRES_REMEDIATION"
+    }
+  },
+  "submission": {
+    "idempotencyKey": "power-platform:{inspectionId}:submit",
+    "successStatus": "APPROVED",
+    "approvalStatus": "PENDING",
+    "uncertainOutcomeRecovery": {
+      "operationId": "GetFieldInspection",
+      "retryMutationOnlyWhenStatus": 404
+    }
+  },
+  "approval": {
+    "role": "Field Inspection Approver",
+    "selfApprovalAllowed": false,
+    "decisions": ["APPROVE", "REJECT"],
+    "rationale": {
+      "required": true,
+      "minimumLength": 10,
+      "maximumLength": 1000
+    },
+    "idempotencyKey": "power-platform:{inspectionId}:decision:{approvalRequestId}",
+    "terminalStatuses": ["APPROVED", "REJECTED"]
+  },
+  "audit": {
+    "metadataOnly": true,
+    "requiredFields": [
+      "inspectionId",
+      "approvalRequestId",
+      "decision",
+      "decidedBy",
+      "decidedAt",
+      "correlationId"
+    ],
+    "forbiddenFields": [
+      "apiKey",
+      "accessToken",
+      "connectionId",
+      "documentContent"
+    ]
+  },
+  "hostedVerification": "UNVERIFIED"
+}

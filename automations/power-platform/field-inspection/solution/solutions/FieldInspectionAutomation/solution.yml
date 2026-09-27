@@ -1,0 +1,20 @@
+ImportExportXml:
+  "@version": 9.2
+  "@SolutionPackageVersion": 9.2
+  "@languagecode": "1033"
+  "@generatedBy": CrmLive
+  SolutionManifest:
+    UniqueName: FieldInspectionAutomation
+    LocalizedNames:
+      LocalizedName:
+        "@description": Field Inspection Automation
+        "@languagecode": "1033"
+    Descriptions:
+      Description:
+        "@description":
+          Synthetic field inspection and approval reference automation.
+        "@languagecode": "1033"
+    Version: 1.0.0.0
+    Managed: "0"
+    Publisher:
+      UniqueName: SyntheticAutomation

@@ -1,0 +1,13 @@
+<environmentvariabledefinition schemaname="ste_SyntheticOperationsApiUrl">
+  <displayname default="Synthetic operations API URL">
+    <label description="Synthetic operations API URL" languagecode="1033" />
+  </displayname>
+  <description default="Base URL for the target synthetic operations API.">
+    <label description="Base URL for the target synthetic operations API." languagecode="1033" />
+  </description>
+  <defaultvalue>https://synthetic-operations-api.example.test</defaultvalue>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000001</type>
+  <introducedversion>1.0.0.0</introducedversion>
+</environmentvariabledefinition>

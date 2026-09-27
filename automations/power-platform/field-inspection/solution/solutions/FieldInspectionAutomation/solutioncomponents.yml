@@ -1,0 +1,5 @@
+Components:
+  Component:
+    - "@path": /Connectors
+    - "@path": /EnvironmentVariables
+    - "@path": /connectionreferences

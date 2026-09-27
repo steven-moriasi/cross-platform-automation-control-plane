@@ -4,8 +4,8 @@
   "id": "field-inspection-power-platform",
   "displayName": "Field inspection and approval",
   "platform": "power-platform",
-  "nativeArtifactPath": "automations/power-platform/field-inspection/custom-connector/apiDefinition.swagger.json",
-  "sourceChecksum": "2247acefb2d72c8b81c7142e70ccdb31bbeacba1319e067faeabe50e25ca1361",
+  "nativeArtifactPath": "automations/power-platform/field-inspection/solution/Connectors/ste_syntheticoperations/apiDefinition.swagger.json",
+  "sourceChecksum": "5641b340b16a563f4f2cac27437d3c5f6f9d66616403faca6f675c937174865b",
   "owner": {
     "email": "automation.owner@example.test",
     "supportGroup": "Field Operations"
@@ -44,11 +44,11 @@
   "recoveryPath": "docs/runbooks/field-inspection-recovery.md",
   "credentialReferences": [
     {
-      "name": "SYNTHETIC_INSPECTION_API",
+      "name": "SYNTHETIC_OPERATIONS_API_KEY",
       "purpose": "Call synthetic field inspection resources"
     },
     {
-      "name": "POWER_PLATFORM_CONNECTION",
+      "name": "POWER_PLATFORM_CONNECTION_REFERENCE",
       "purpose": "Optional hosted environment connection reference"
     }
   ]

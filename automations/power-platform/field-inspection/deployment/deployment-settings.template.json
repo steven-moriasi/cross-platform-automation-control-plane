@@ -1,0 +1,15 @@
+{
+  "EnvironmentVariables": [
+    {
+      "SchemaName": "ste_SyntheticOperationsApiUrl",
+      "Value": "https://synthetic-operations-api.example.test"
+    }
+  ],
+  "ConnectionReferences": [
+    {
+      "LogicalName": "ste_SyntheticOperations",
+      "ConnectionId": "",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_ste_syntheticoperations"
+    }
+  ]
+}

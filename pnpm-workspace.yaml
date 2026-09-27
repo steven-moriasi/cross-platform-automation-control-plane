@@ -3,6 +3,7 @@ packages:
   - "services/*"
   - "packages/*"
   - "automations/make/*"
+  - "automations/power-platform/*"
   - "automations/zapier/*"
   - "automations/n8n/nodes/*"
 

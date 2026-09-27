@@ -1,0 +1,9 @@
+Connector:
+  connectorid: 6f5e5f0e-c06f-4b52-a40b-8ad855de77a1
+  name: ste_syntheticoperations
+  displayname: Synthetic Field Inspection Operations
+  description:
+    Synthetic field inspection submission, reconciliation, and approval
+    operations.
+  connectortype: "1"
+  iscustomizable: "1"

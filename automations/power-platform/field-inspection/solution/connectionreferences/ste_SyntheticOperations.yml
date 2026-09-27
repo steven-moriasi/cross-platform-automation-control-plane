@@ -1,0 +1,11 @@
+connectionreference:
+  connectionreferencelogicalname: ste_SyntheticOperations
+  connectionreferencedisplayname: Synthetic Field Inspection Operations
+  connectorid: /providers/Microsoft.PowerApps/apis/shared_ste_syntheticoperations
+  name: ste_SyntheticOperations
+  description:
+    Environment-bound connection for the synthetic field inspection custom
+    connector.
+  iscustomizable: "1"
+  statecode: "0"
+  statuscode: "1"

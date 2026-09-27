@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "roles": [
+    {
+      "name": "Field Inspector",
+      "permissions": [
+        "inspection.submit",
+        "inspection.read_own",
+        "inspection.reconcile_own"
+      ],
+      "restrictions": ["inspection.decide", "solution.configure"]
+    },
+    {
+      "name": "Field Inspection Approver",
+      "permissions": [
+        "inspection.read_pending",
+        "inspection.decide",
+        "inspection.reconcile"
+      ],
+      "restrictions": ["inspection.decide_own", "solution.configure"]
+    },
+    {
+      "name": "Field Inspection Administrator",
+      "permissions": [
+        "inspection.read_all",
+        "inspection.reconcile",
+        "solution.configure",
+        "connection.bind"
+      ],
+      "restrictions": ["inspection.decide"]
+    }
+  ],
+  "hostedVerification": "UNVERIFIED"
+}

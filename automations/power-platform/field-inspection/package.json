@@ -1,0 +1,22 @@
+{
+  "name": "power-platform-field-inspection",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Source-controlled Power Platform field inspection and approval reference package",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "scripts": {
+    "build": "node scripts/validate-solution.js",
+    "lint": "eslint scripts test",
+    "pack:solution": "node scripts/package-solution.js",
+    "test": "node --test",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "24.9.2",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.20.0 <23"
+  }
+}
