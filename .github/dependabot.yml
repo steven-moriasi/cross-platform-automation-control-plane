@@ -1,0 +1,92 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 5
+    groups:
+      production-dependencies:
+        dependency-type: production
+      development-dependencies:
+        dependency-type: development
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:30"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 3
+    groups:
+      workflow-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: terraform
+    directory: /infrastructure/terraform/aws
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 2
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 2
+    groups:
+      compose-images:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /apps/web
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 1
+
+  - package-ecosystem: docker
+    directory: /services/control-plane
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 1
+
+  - package-ecosystem: docker
+    directory: /services/synthetic-operations-api
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 1
+
+  - package-ecosystem: docker
+    directory: /automations/n8n
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Africa/Nairobi
+    target-branch: main
+    open-pull-requests-limit: 1
