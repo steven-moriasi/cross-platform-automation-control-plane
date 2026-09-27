@@ -67,6 +67,8 @@ operations API, n8n, and authenticated web application.
 | `http://localhost:4100/api/v1/openapi.json` | Shared automation API contract               |
 | `http://localhost:5678`                     | Local n8n runtime                            |
 | `http://localhost:8089`                     | Local Keycloak identity provider             |
+| `http://localhost:3001`                     | Grafana dashboards and trace exploration     |
+| `http://localhost:9090`                     | Prometheus targets, rules, and queries       |
 
 The imported realm contains synthetic users for each role. Use the username
 `admin` and password `admin-local-only` for full local access; the other
@@ -90,4 +92,6 @@ See [Architecture](docs/architecture.md) for what the system builds, why the
 boundaries exist, and how each platform is represented truthfully. See
 [Synthetic operations API](docs/synthetic-operations-api.md) for stable
 fixtures, idempotency, injected failure modes, reconciliation, and callback
-signatures used by the four platform packages.
+signatures used by the four platform packages. See
+[Observability](docs/observability.md) for metrics, traces, dashboards, alert
+rules, and the telemetry data boundary.

@@ -1,0 +1,80 @@
+groups:
+  - name: automation-control-plane
+    rules:
+      - alert: ControlPlaneApiUnavailable
+        expr: up{job="control-plane-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Control-plane API metrics endpoint is unavailable
+
+      - alert: SyntheticOperationsApiUnavailable
+        expr: up{job="synthetic-operations-api"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Synthetic operations API metrics endpoint is unavailable
+
+      - alert: ControlPlaneWorkerUnavailable
+        expr:
+          control_plane_worker_heartbeat_present == 0 or
+          control_plane_worker_heartbeat_age_seconds > 30
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: No recent control-plane worker heartbeat
+
+      - alert: ControlPlaneOutboxBacklog
+        expr: control_plane_outbox_pending > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Durable outbox backlog exceeds the local operating threshold
+
+      - alert: ControlPlaneDeadLettersPresent
+        expr: control_plane_outbox_dead_letters > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: One or more outbox messages require recovery
+
+      - alert: CriticalAutomationIncidentOpen
+        expr:
+          sum(control_plane_incidents{severity="CRITICAL",status=~"OPEN|ACKNOWLEDGED"})
+          > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: A critical automation incident remains active
+
+      - alert: AutomationSourceChecksumMismatch
+        expr: sum(control_plane_automation_info{checksum_status="MISMATCH"}) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: A registered automation source differs from its manifest
+
+      - alert: EvidenceRetentionExpired
+        expr: control_plane_evidence_expired > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Evidence bundles have passed their declared retention time
+
+      - alert: ControlPlaneHighRequestLatency
+        expr:
+          histogram_quantile(0.95, sum by (le)
+          (rate(control_plane_http_request_duration_seconds_bucket[5m]))) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Control-plane API p95 latency is above one second

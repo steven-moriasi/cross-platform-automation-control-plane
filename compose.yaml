@@ -75,6 +75,7 @@ services:
       OIDC_AUDIENCE: control-plane-api
       OIDC_ISSUER: http://localhost:8089/realms/automation-control-plane
       OIDC_JWKS_URL: http://keycloak:8080/realms/automation-control-plane/protocol/openid-connect/certs
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       PORT: 4000
       SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
       TELEMETRY_CLIENT_ID: ${TELEMETRY_CLIENT_ID:-local-automation-packages}
@@ -99,6 +100,7 @@ services:
         condition: service_completed_successfully
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-automation}:${POSTGRES_PASSWORD:-automation-local-only}@postgres:5432/${POSTGRES_DB:-automation_control_plane}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
     restart: unless-stopped
 
@@ -108,6 +110,7 @@ services:
       dockerfile: services/synthetic-operations-api/Dockerfile
     environment:
       PORT: 4100
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
       SYNTHETIC_CALLBACK_SECRET: ${SYNTHETIC_CALLBACK_SECRET:-local-synthetic-callback-secret-change-me}
       WEB_ORIGIN: http://localhost:${WEB_PORT:-3000}
@@ -165,6 +168,7 @@ services:
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-local-n8n-encryption-key-change-me}
       N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
       N8N_HOST: localhost
+      N8N_METRICS: "true"
       N8N_PERSONALIZATION_ENABLED: "false"
       N8N_PORT: 5678
       N8N_PROTOCOL: http
@@ -187,6 +191,63 @@ services:
     restart: unless-stopped
     volumes:
       - n8n-data:/home/node/n8n-data
+
+  tempo:
+    image: grafana/tempo@sha256:0ef775495967cd5d7a6b2e146b6ea695d624803c8db8349fb8ce4164f719f9b7
+    command: ["-config.file=/etc/tempo.yaml"]
+    ports:
+      - "127.0.0.1:3200:3200"
+    restart: unless-stopped
+    volumes:
+      - ./ops/observability/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-data:/var/tempo
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib@sha256:89107a3a8f4636a396927edf7025bb9614b8da2d92f4cc3f43109e8d115736e2
+    command: ["--config=/etc/otel-collector.yaml"]
+    depends_on:
+      - tempo
+    restart: unless-stopped
+    volumes:
+      - ./ops/observability/otel-collector.yaml:/etc/otel-collector.yaml:ro
+
+  prometheus:
+    image: prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+      - "--web.enable-lifecycle"
+    depends_on:
+      control-plane-api:
+        condition: service_healthy
+      synthetic-operations-api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+    volumes:
+      - ./ops/observability/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - ./ops/observability/alerts.yaml:/etc/prometheus/rules/alerts.yaml:ro
+      - prometheus-data:/prometheus
+
+  grafana:
+    image: grafana/grafana@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    depends_on:
+      - prometheus
+      - tempo
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "127.0.0.1:3001:3000"
+    restart: unless-stopped
+    volumes:
+      - ./ops/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
 
   web:
     build:
@@ -217,5 +278,8 @@ services:
     restart: unless-stopped
 
 volumes:
+  grafana-data:
   n8n-data:
   postgres-data:
+  prometheus-data:
+  tempo-data:

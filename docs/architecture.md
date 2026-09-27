@@ -72,8 +72,6 @@ flowchart LR
     API --> Outbox[Transactional outbox]
     Outbox --> Worker[Control-plane worker]
     Worker --> DB
-    Worker --> Evidence[(S3-compatible evidence)]
-
     Keycloak[OIDC provider] --> Web
     Keycloak --> API
 
@@ -90,6 +88,7 @@ flowchart LR
 
     API --> Metrics[OpenTelemetry and Prometheus]
     Worker --> Metrics
+    Metrics --> Grafana[Grafana and Tempo]
 ```
 
 ### Control plane
@@ -102,10 +101,10 @@ The control plane is a TypeScript monorepo:
 - **NestJS worker** processes durable outbox work, incident correlation,
   retention, and evidence generation.
 - **PostgreSQL** is the authority for control-plane state.
-- **S3-compatible storage** holds generated evidence bundles, never vendor
-  credentials.
+- **PostgreSQL** stores generated metadata-only evidence documents and their
+  retention hashes in the local reference runtime.
 - **Keycloak** provides local OIDC identities and role claims.
-- **OpenTelemetry, Prometheus, and Grafana** expose technical and process
+- **OpenTelemetry, Prometheus, Tempo, and Grafana** expose technical and process
   health.
 
 The API and worker are separate processes from one codebase. This keeps
@@ -270,10 +269,9 @@ One local command will start:
 - control-plane API and worker;
 - PostgreSQL;
 - Keycloak;
-- S3-compatible storage;
 - n8n;
 - synthetic business APIs;
-- OpenTelemetry Collector, Prometheus, and Grafana.
+- OpenTelemetry Collector, Prometheus, Tempo, and Grafana.
 
 Local verification covers the control plane and n8n end to end. Zapier, Make,
 and Power Platform packages receive all available offline tests and packaging
@@ -285,6 +283,8 @@ are available.
 The reference deployment targets Kubernetes with non-root containers, health
 probes, resource budgets, network policy, disruption budgets, horizontal
 scaling, workload identities, managed PostgreSQL, and managed object storage.
+Managed object storage is a deployment extension for larger immutable evidence
+objects; it is not part of the local database-backed evidence implementation.
 Infrastructure definitions demonstrate a reviewable target; they are not
 evidence of a live production deployment or regulatory certification.
 

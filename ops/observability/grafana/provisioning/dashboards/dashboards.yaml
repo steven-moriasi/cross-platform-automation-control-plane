@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: Automation control plane
+    orgId: 1
+    folder: Automation Control Plane
+    type: file
+    disableDeletion: true
+    editable: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
