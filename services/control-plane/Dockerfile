@@ -1,4 +1,4 @@
-FROM node:22.20.0-alpine AS build
+FROM node:22.23.2-alpine@sha256:b6f26b36c8ff49624cfdac716b8ea1138d606df02586a77d364bb5536a634f85 AS build
 
 RUN npm install --global pnpm@12.4.1
 
@@ -18,10 +18,14 @@ RUN pnpm --filter @automation-control-plane/contracts build \
     && pnpm --filter @automation-control-plane/control-plane build \
     && pnpm --filter @automation-control-plane/control-plane deploy --prod /out
 
-FROM node:22.20.0-alpine AS runtime
+FROM node:22.23.2-alpine@sha256:b6f26b36c8ff49624cfdac716b8ea1138d606df02586a77d364bb5536a634f85 AS runtime
 
 ENV NODE_ENV=production
 WORKDIR /app
+
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+    && rm -f /usr/local/bin/corepack /usr/local/bin/npm /usr/local/bin/npx \
+      /usr/local/bin/pnpm /usr/local/bin/pnpx /usr/local/bin/yarn /usr/local/bin/yarnpkg
 
 COPY --from=build --chown=node:node /out ./
 COPY --chown=node:node automations ./automations

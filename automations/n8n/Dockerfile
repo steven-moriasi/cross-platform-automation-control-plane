@@ -1,4 +1,4 @@
-FROM node:22.20.0-alpine AS node-build
+FROM node:22.23.2-alpine@sha256:b6f26b36c8ff49624cfdac716b8ea1138d606df02586a77d364bb5536a634f85 AS node-build
 
 RUN npm install --global pnpm@12.4.1
 

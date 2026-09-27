@@ -3,9 +3,15 @@
 .git
 .github
 .next
+build
 coverage
 dist
 evidence
 node_modules
+**/.next
+**/build
+**/coverage
+**/dist
+**/node_modules
 solution-package
 *.log

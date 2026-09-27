@@ -45,7 +45,7 @@ is included.
 Requirements:
 
 - Docker with Compose v2;
-- Node.js 22.20.0 and pnpm 12.4.1 for checks outside containers.
+- Node.js 22.23.2 and pnpm 12.4.1 for checks outside containers.
 
 Start the current application stack:
 
@@ -102,3 +102,7 @@ drills, backup validation, and trust boundaries.
 The production-oriented targets under `deploy/kubernetes/` and
 `infrastructure/terraform/aws/` demonstrate hardened workload packaging and
 managed dependency boundaries without claiming a live cloud deployment.
+
+GitHub Actions run repository checks, validate native platform artifacts, build
+and scan every application image, and publish attested multi-architecture images
+only from a version tag or explicit release dispatch.
