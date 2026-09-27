@@ -94,4 +94,7 @@ boundaries exist, and how each platform is represented truthfully. See
 fixtures, idempotency, injected failure modes, reconciliation, and callback
 signatures used by the four platform packages. See
 [Observability](docs/observability.md) for metrics, traces, dashboards, alert
-rules, and the telemetry data boundary.
+rules, and the telemetry data boundary. See
+[Recovery verification](docs/recovery-verification.md) and the
+[security threat model](docs/security-threat-model.md) for executable failure
+drills, backup validation, and trust boundaries.

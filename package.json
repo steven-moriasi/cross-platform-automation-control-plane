@@ -19,6 +19,10 @@
     "format:check": "prettier --check .",
     "lint": "turbo run lint",
     "manifests:validate": "tsx scripts/validate-manifests.ts",
+    "recovery:migrations": "bash scripts/operations/verify-migrations.sh",
+    "recovery:outbox": "bash scripts/operations/outbox-recovery-drill.sh",
+    "recovery:postgres": "bash scripts/operations/postgres-restore-drill.sh",
+    "security:secrets": "bash scripts/security/check-secret-safety.sh",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },
