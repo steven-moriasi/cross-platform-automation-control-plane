@@ -1,0 +1,28 @@
+{
+  "name": "n8n-nodes-control-plane-telemetry",
+  "version": "0.1.0",
+  "description": "Signed metadata-only telemetry node for the Cross-Platform Automation Control Plane",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/nodes/ControlPlaneTelemetry/ControlPlaneTelemetry.node.js",
+  "types": "dist/nodes/ControlPlaneTelemetry/ControlPlaneTelemetry.node.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "5.0.0"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/ControlPlaneTelemetry/ControlPlaneTelemetry.node.js"
+    ]
+  }
+}
