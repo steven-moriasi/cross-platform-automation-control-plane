@@ -152,3 +152,34 @@ export interface EvidenceBundleRecord {
   readonly releaseId?: string;
   readonly sha256: string;
 }
+
+export const evidenceBundleRequestSchema = z
+  .object({
+    automationId: z
+      .string()
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+      .max(100),
+    expiresAt: z.string().datetime({ offset: true }),
+    incidentId: z.string().uuid().optional(),
+    releaseId: z.string().uuid().optional(),
+  })
+  .strict()
+  .refine(
+    ({ incidentId, releaseId }) =>
+      (incidentId === undefined) !== (releaseId === undefined),
+    {
+      message: "Exactly one release or incident must be selected.",
+    },
+  );
+
+export type EvidenceBundleRequest = z.infer<typeof evidenceBundleRequestSchema>;
+
+export interface EvidenceBundleDocument {
+  readonly generatedAt: string;
+  readonly incident?: {
+    readonly history: readonly IncidentHistoryRecord[];
+    readonly record: IncidentRecord;
+  };
+  readonly release?: ReleaseRecord;
+  readonly schemaVersion: "1.0";
+}

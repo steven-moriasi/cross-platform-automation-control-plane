@@ -69,6 +69,21 @@ export interface TelemetryReceipt {
   readonly replayed: boolean;
 }
 
+export interface ExecutionRecord {
+  readonly automationId: string;
+  readonly correlationId?: string;
+  readonly durationMilliseconds?: number;
+  readonly environment: "demo" | "production" | "staging";
+  readonly errorCode?: string;
+  readonly eventCount: number;
+  readonly executionId: string;
+  readonly firstOccurredAt: string;
+  readonly latestOccurredAt: string;
+  readonly platform: (typeof automationPlatforms)[number];
+  readonly releaseVersion: string;
+  readonly status: ExecutionStatus;
+}
+
 export function parseExecutionEvent(value: unknown): ExecutionEvent {
   assertNoEmbeddedSecrets(value, "executionEvent");
   return executionEventSchema.parse(value);
