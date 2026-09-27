@@ -59,12 +59,13 @@ and applies checksum-protected migrations, imports the local Keycloak realm,
 then starts the API, worker, synthetic operations API, and authenticated web
 application.
 
-| Endpoint                             | Purpose                                      |
-| ------------------------------------ | -------------------------------------------- |
-| `http://localhost:3000`              | Operations web                               |
-| `http://localhost:4000/health/ready` | Control-plane readiness                      |
-| `http://localhost:4100/api/v1/meta`  | Synthetic API capabilities and data boundary |
-| `http://localhost:8089`              | Local Keycloak identity provider             |
+| Endpoint                                    | Purpose                                      |
+| ------------------------------------------- | -------------------------------------------- |
+| `http://localhost:3000`                     | Operations web                               |
+| `http://localhost:4000/health/ready`        | Control-plane readiness                      |
+| `http://localhost:4100/api/v1/meta`         | Synthetic API capabilities and data boundary |
+| `http://localhost:4100/api/v1/openapi.json` | Shared automation API contract               |
+| `http://localhost:8089`                     | Local Keycloak identity provider             |
 
 The imported realm contains synthetic users for each role. Use the username
 `admin` and password `admin-local-only` for full local access; the other
@@ -85,4 +86,7 @@ when intentionally deleting local PostgreSQL state.
 ## Architecture
 
 See [Architecture](docs/architecture.md) for what the system builds, why the
-boundaries exist, and how each platform is represented truthfully.
+boundaries exist, and how each platform is represented truthfully. See
+[Synthetic operations API](docs/synthetic-operations-api.md) for stable
+fixtures, idempotency, injected failure modes, reconciliation, and callback
+signatures used by the four platform packages.
