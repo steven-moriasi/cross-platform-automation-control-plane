@@ -56,8 +56,8 @@ pnpm app:start
 
 The command builds immutable application images, waits for PostgreSQL, verifies
 and applies checksum-protected migrations, imports the local Keycloak realm,
-then starts the API, worker, synthetic operations API, and authenticated web
-application.
+imports and publishes the n8n workflows, then starts the API, worker, synthetic
+operations API, n8n, and authenticated web application.
 
 | Endpoint                                    | Purpose                                      |
 | ------------------------------------------- | -------------------------------------------- |
@@ -65,6 +65,7 @@ application.
 | `http://localhost:4000/health/ready`        | Control-plane readiness                      |
 | `http://localhost:4100/api/v1/meta`         | Synthetic API capabilities and data boundary |
 | `http://localhost:4100/api/v1/openapi.json` | Shared automation API contract               |
+| `http://localhost:5678`                     | Local n8n runtime                            |
 | `http://localhost:8089`                     | Local Keycloak identity provider             |
 
 The imported realm contains synthetic users for each role. Use the username
