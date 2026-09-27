@@ -13,7 +13,7 @@ COPY automations/n8n/nodes/n8n-nodes-control-plane-telemetry automations/n8n/nod
 
 RUN pnpm --filter n8n-nodes-control-plane-telemetry build
 
-FROM n8nio/n8n:2.36.9
+FROM n8nio/n8n:2.40.6
 
 USER root
 
