@@ -109,6 +109,7 @@ services:
     environment:
       PORT: 4100
       SERVICE_VERSION: ${SERVICE_VERSION:-0.1.0}
+      SYNTHETIC_CALLBACK_SECRET: ${SYNTHETIC_CALLBACK_SECRET:-local-synthetic-callback-secret-change-me}
       WEB_ORIGIN: http://localhost:${WEB_PORT:-3000}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4100/health/ready"]

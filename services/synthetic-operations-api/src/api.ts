@@ -27,7 +27,7 @@ await app.register(helmet, {
   crossOriginEmbedderPolicy: false,
 });
 await app.register(cors, {
-  methods: ["GET", "POST"],
+  methods: ["GET", "PATCH", "POST"],
   origin: environment.webOrigin,
 });
 

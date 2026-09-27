@@ -4,4 +4,5 @@ export * from "./health.js";
 export * from "./manifest.js";
 export * from "./operations.js";
 export * from "./platform.js";
+export * from "./synthetic-operations.js";
 export * from "./telemetry.js";

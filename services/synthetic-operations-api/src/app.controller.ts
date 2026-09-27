@@ -2,6 +2,7 @@ import type { ServiceHealth } from "@automation-control-plane/contracts";
 import { Controller, Get } from "@nestjs/common";
 
 import { getSyntheticApiMetadata, type SyntheticApiMetadata } from "./meta.js";
+import openApiDocument from "./openapi.json" with { type: "json" };
 
 @Controller()
 export class AppController {
@@ -24,5 +25,10 @@ export class AppController {
   @Get("api/v1/meta")
   public metadata(): SyntheticApiMetadata {
     return getSyntheticApiMetadata();
+  }
+
+  @Get("api/v1/openapi.json")
+  public openApi(): object {
+    return openApiDocument;
   }
 }

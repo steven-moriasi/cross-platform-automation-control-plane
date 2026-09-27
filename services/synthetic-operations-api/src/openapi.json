@@ -1,0 +1,471 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Synthetic Operations API",
+    "version": "1.0.0",
+    "description": "Deterministic synthetic resources for the n8n, Zapier, Make, and Power Platform reference automations. Mutations require x-idempotency-key. x-synthetic-failure accepts TRANSIENT, TIMEOUT, or UNCERTAIN."
+  },
+  "servers": [{ "url": "http://localhost:4100/api/v1" }],
+  "paths": {
+    "/policies/{id}": {
+      "get": {
+        "operationId": "getPolicy",
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/claims": {
+      "post": {
+        "operationId": "createClaim",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/FailureMode" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateClaim" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "409": { "$ref": "#/components/responses/Conflict" },
+          "504": { "$ref": "#/components/responses/Uncertain" }
+        }
+      }
+    },
+    "/claims/{id}": {
+      "get": {
+        "operationId": "getClaim",
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/partners/applications": {
+      "get": {
+        "operationId": "listPartnerApplications",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": { "type": "string", "default": "0" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "default": 2
+            }
+          }
+        ],
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      }
+    },
+    "/partners/verifications": {
+      "post": {
+        "operationId": "verifyPartner",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/FailureMode" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PartnerVerification" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Success" },
+          "504": { "$ref": "#/components/responses/Uncertain" }
+        }
+      }
+    },
+    "/partners/cases": {
+      "post": {
+        "operationId": "createPartnerCase",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/FailureMode" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PartnerCase" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Success" },
+          "504": { "$ref": "#/components/responses/Uncertain" }
+        }
+      }
+    },
+    "/partners/cases/{id}": {
+      "get": {
+        "operationId": "getPartnerCase",
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/partners/cases/{id}/status": {
+      "patch": {
+        "operationId": "updatePartnerCaseStatus",
+        "parameters": [
+          { "$ref": "#/components/parameters/ResourceId" },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PartnerStatus" }
+            }
+          }
+        },
+        "responses": { "200": { "$ref": "#/components/responses/Success" } }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "operationId": "getOrder",
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/returns": {
+      "post": {
+        "operationId": "createReturn",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/FailureMode" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReturnRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Success" },
+          "504": { "$ref": "#/components/responses/Uncertain" }
+        }
+      }
+    },
+    "/returns/{id}": {
+      "get": {
+        "operationId": "getReturn",
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/warehouse/work": {
+      "post": {
+        "operationId": "createWarehouseWork",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WarehouseWork" }
+            }
+          }
+        },
+        "responses": { "201": { "$ref": "#/components/responses/Success" } }
+      }
+    },
+    "/refunds": {
+      "post": {
+        "operationId": "createRefund",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/FailureMode" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RefundRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Success" },
+          "409": { "$ref": "#/components/responses/Conflict" },
+          "504": { "$ref": "#/components/responses/Uncertain" }
+        }
+      }
+    },
+    "/refunds/{id}": {
+      "get": {
+        "operationId": "reconcileRefund",
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/field-inspections": {
+      "post": {
+        "operationId": "createFieldInspection",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/FailureMode" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FieldInspection" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "$ref": "#/components/responses/Success" },
+          "504": { "$ref": "#/components/responses/Uncertain" }
+        }
+      }
+    },
+    "/field-inspections/{id}": {
+      "get": {
+        "operationId": "getFieldInspection",
+        "parameters": [{ "$ref": "#/components/parameters/ResourceId" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/field-inspections/{id}/decision": {
+      "post": {
+        "operationId": "decideFieldInspection",
+        "parameters": [
+          { "$ref": "#/components/parameters/ResourceId" },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/InspectionDecision" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/callbacks/{operationId}": {
+      "get": {
+        "operationId": "getSignedCallback",
+        "parameters": [
+          {
+            "name": "operationId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "ResourceId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "$ref": "#/components/schemas/Identifier" }
+      },
+      "IdempotencyKey": {
+        "name": "x-idempotency-key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "minLength": 8, "maxLength": 200 }
+      },
+      "FailureMode": {
+        "name": "x-synthetic-failure",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": ["TRANSIENT", "TIMEOUT", "UNCERTAIN"]
+        }
+      }
+    },
+    "responses": {
+      "Success": {
+        "description": "Successful deterministic response",
+        "content": { "application/json": { "schema": { "type": "object" } } }
+      },
+      "BadRequest": { "description": "Invalid request" },
+      "Conflict": { "description": "State or idempotency conflict" },
+      "NotFound": { "description": "Synthetic resource not found" },
+      "Uncertain": {
+        "description": "Injected timeout; query the resource or callback before retrying"
+      }
+    },
+    "schemas": {
+      "Identifier": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+        "maxLength": 100
+      },
+      "CreateClaim": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claimId",
+          "documentReferences",
+          "policyId",
+          "reportedAmount"
+        ],
+        "properties": {
+          "claimId": { "$ref": "#/components/schemas/Identifier" },
+          "documentReferences": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": { "$ref": "#/components/schemas/Identifier" }
+          },
+          "policyId": { "$ref": "#/components/schemas/Identifier" },
+          "reportedAmount": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 10000000
+          }
+        }
+      },
+      "PartnerVerification": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["applicationId", "documentReferences"],
+        "properties": {
+          "applicationId": { "$ref": "#/components/schemas/Identifier" },
+          "documentReferences": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": { "$ref": "#/components/schemas/Identifier" }
+          }
+        }
+      },
+      "PartnerCase": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["applicationId", "caseId"],
+        "properties": {
+          "applicationId": { "$ref": "#/components/schemas/Identifier" },
+          "caseId": { "$ref": "#/components/schemas/Identifier" }
+        }
+      },
+      "PartnerStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["APPROVED", "REJECTED", "REQUIRES_INFORMATION"]
+          }
+        }
+      },
+      "ReturnRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["orderId", "reason", "returnId"],
+        "properties": {
+          "orderId": { "$ref": "#/components/schemas/Identifier" },
+          "reason": {
+            "type": "string",
+            "enum": ["DAMAGED", "INCORRECT_ITEM", "NOT_REQUIRED"]
+          },
+          "returnId": { "$ref": "#/components/schemas/Identifier" }
+        }
+      },
+      "WarehouseWork": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["returnId", "workId"],
+        "properties": {
+          "returnId": { "$ref": "#/components/schemas/Identifier" },
+          "workId": { "$ref": "#/components/schemas/Identifier" }
+        }
+      },
+      "RefundRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["amount", "refundId", "returnId"],
+        "properties": {
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 10000000
+          },
+          "refundId": { "$ref": "#/components/schemas/Identifier" },
+          "returnId": { "$ref": "#/components/schemas/Identifier" }
+        }
+      },
+      "FieldInspection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "inspectionId",
+          "locationReference",
+          "outcome",
+          "submittedBy"
+        ],
+        "properties": {
+          "inspectionId": { "$ref": "#/components/schemas/Identifier" },
+          "locationReference": { "$ref": "#/components/schemas/Identifier" },
+          "outcome": {
+            "type": "string",
+            "enum": ["PASS", "REQUIRES_REMEDIATION"]
+          },
+          "submittedBy": { "$ref": "#/components/schemas/Identifier" }
+        }
+      },
+      "InspectionDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["decision", "rationale"],
+        "properties": {
+          "decision": { "type": "string", "enum": ["APPROVE", "REJECT"] },
+          "rationale": { "type": "string", "minLength": 10, "maxLength": 1000 }
+        }
+      }
+    }
+  }
+}
