@@ -1,7 +1,7 @@
 # Implementation roadmap
 
 The platform is delivered as meaningful, reviewable increments. Each phase ends
-with executable verification and a Steven Ongati-authored commit on `main`.
+with executable verification.
 
 ## Repository structure
 

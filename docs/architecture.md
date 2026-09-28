@@ -14,7 +14,7 @@ The system has two complementary parts:
 2. **The platform packages** contain native automation artifacts and a deep
    reference workflow for each vendor.
 
-The result is inspectable portfolio evidence for both automation delivery and
+The result is inspectable operational evidence for both automation delivery and
 production ownership: the repository shows what runs on each platform, how
 changes are reviewed, how failures reach an operator, and where vendor-hosted
 validation is still required.
